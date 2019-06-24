@@ -13,231 +13,240 @@ use Psr\Http\Message\StreamInterface;
 class Stream implements StreamInterface
 {
     /**
+     * @var string[]
+    */
+    private const WRITABLE_MODES = ['r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+'];
+
+    /**
+     * @var string[]
+     */
+    private const READABLE_MODES = ['r', 'r+', 'w+', 'a+', 'x+', 'c+'];
+
+    /**
      * Stream of data.
      *
      * @var resource|null
      */
-    protected $resource;
+    private $stream = null;
 
     /**
-     * Stream constructor.
-     * 
-     * @param string|resource $resource
-     * @param string $mode
+     * @param resource|string|mixed $stream
+     *
+     * @throws \InvalidArgumentException If a resource or string isn't given.
      */
-    public function __construct($resource = 'php://memory', $mode = 'w+')
+    public function __construct($stream = 'php://memory')
     {
-        if (\is_resource($resource)) {
-            $this->resource = $resource;
-            \rewind($this->resource);
-        } elseif (\is_string($resource)) {
-            $error = null;
-            \set_error_handler(function () use ($resource, $mode, &$error) {
-                $error = new \RuntimeException("Failed to open '{$resource}' in '{$mode}' mode");
-            });
-
-            $handle = \fopen($resource, $mode);
-            if ($handle)
-                $this->resource = $handle;
-            else {
-                $handle = \fopen('php://temp', $mode);
-                if ($handle) {
-                    $this->resource = $handle;
-                    \fwrite($this->resource, $resource);
-                    \rewind($this->resource);
-                    $error = null;
-                }
+        if (is_resource($stream)) {
+            $this->stream = $stream;
+            rewind($this->stream);
+        } elseif (is_string($stream)) {
+            $handle = fopen('php://temp', 'w+');
+            if ($handle) {
+                $this->stream = $handle;
+                fwrite($this->stream, $stream);
+                rewind($this->stream);
             }
-
-            \restore_error_handler();
-            if ($error instanceof \RuntimeException)
-                throw $error;
         } else {
-            throw new \InvalidArgumentException('$resource must be either string or a valid resource');
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s must be constructed with a resource or string; %s given.',
+                    self::class,
+                    gettype($stream)
+                )
+            );
         }
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function __toString()
     {
-        try {
-            $this->rewind();
-            return $this->getContents();
-        } catch (\Exception $e) {
+        if ($this->stream === null) {
+            return '';
         }
-        return '';
+        $string = stream_get_contents($this->stream, -1, 0);
+        if (!$string) {
+            return '';
+        }
+        return $string;
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function close()
+    public function close(): void
     {
-        $resource = $this->detach();
-        \fclose($resource);
+        if ($this->stream === null) {
+            return;
+        }
+        fclose($this->stream);
+        $this->stream = null;
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function detach()
     {
-        $resource = $this->resource;
-        unset($this->resource);
-        return $resource;
+        $stream = $this->stream;
+        $this->stream = null;
+        return $stream;
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function eof()
+    public function getSize(): ?int
     {
-        if (isset($this->resource)) {
-            return \feof($this->resource);
+        if ($this->stream === null) {
+            return null;
         }
-        return true;
+        $stats = fstat($this->stream);
+        return $stats['size'] ?? null;
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getContents()
+    public function tell(): int
     {
-        if ($this->isReadable()) {
-            $contents = \stream_get_contents($this->resource);
-            if (false !== $contents) {
-                return $contents;
-            }
-            throw new \RuntimeException('Unable to get contents from underlying resource');
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
         }
-        throw new \RuntimeException('Underlying resource is not readable');
+        $position = ftell($this->stream);
+        if ($position === false) {
+            throw new \RuntimeException('Unable to get position of stream.');
+        }
+        return $position;
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     */
+    public function eof(): bool
+    {
+        return $this->stream === null ? true : feof($this->stream);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function isSeekable(): bool
+    {
+        if ($this->stream === null) {
+            return false;
+        }
+        $seekable = $this->getMetadata('seekable');
+        if ($seekable === null) {
+            return false;
+        }
+        return $seekable;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function seek($offset, $whence = SEEK_SET): void
+    {
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
+        }
+        if (0 > fseek($this->stream, $offset, $whence)) {
+            throw new \RuntimeException(
+                sprintf('Failed to seek to offset %s.', $offset)
+            );
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function rewind(): void
+    {
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
+        }
+        if (!rewind($this->stream)) {
+            throw new \RuntimeException('Failed to rewind stream.');
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function isWritable(): bool
+    {
+        if ($this->stream === null) {
+            return false;
+        }
+        $mode = $this->getMetadata('mode');
+        if ($mode === null) {
+            return false;
+        }
+        $mode = str_replace(['b', 'e'], '', $mode);
+        return in_array($mode, self::WRITABLE_MODES, true);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function write($string): int
+    {
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
+        }
+        if (!$this->isWritable()) {
+            throw new \RuntimeException('Stream is not writable.');
+        }
+        return fwrite($this->stream, $string) ?: 0;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function isReadable(): bool
+    {
+        if ($this->stream === null) {
+            return false;
+        }
+        $mode = $this->getMetadata('mode');
+        if ($mode === null) {
+            return false;
+        }
+        $mode = str_replace(['b', 'e'], '', $mode);
+        return in_array($mode, self::READABLE_MODES, true);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function read($length): string
+    {
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
+        }
+        if (!$this->isReadable()) {
+            throw new \RuntimeException('Stream is not readable.');
+        }
+        return fread($this->stream, $length) ?: '';
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function getContents(): string
+    {
+        if ($this->stream === null) {
+            throw new \RuntimeException('Stream is not open.');
+        }
+        $string = stream_get_contents($this->stream);
+        if ($string === false) {
+            throw new \RuntimeException('Failed to get contents of stream.');
+        }
+        return $string;
+    }
+    /**
+     * {@inheritDoc}
      */
     public function getMetadata($key = null)
     {
-        $metadata = \stream_get_meta_data($this->resource);
-        if ($key) {
-            $metadata = isset($metadata[$key]) ? $metadata[$key] : null;
+        if ($this->stream === null) {
+            return null;
         }
-        return $metadata;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSize()
-    {
-        $stats = \fstat($this->resource);
-        return isset($stats['size']) ? (int)$stats['size'] : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isReadable()
-    {
-        if (!isset($this->resource)) {
-            return false;
+        $metadata = stream_get_meta_data($this->stream);
+        if ($key === null) {
+            return $metadata;
         }
-        $mode = $this->getMetadata('mode');
-        return \strstr($mode, 'r') || \strstr($mode, '+');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isSeekable()
-    {
-        if (!isset($this->resource)) {
-            return false;
+        if (array_key_exists($key, $metadata)) {
+            return $metadata[$key];
         }
-        return $this->getMetadata('seekable');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isWritable()
-    {
-        if (!isset($this->resource)) {
-            return false;
-        }
-        $mode = $this->getMetadata('mode');
-        return \strstr($mode, 'x')
-            || \strstr($mode, 'w')
-            || \strstr($mode, 'c')
-            || \strstr($mode, 'a')
-            || \strstr($mode, '+');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function read($length)
-    {
-        if (!$this->isReadable()) {
-            throw new \RuntimeException('Stream is not readable');
-        }
-        $contents = \fread($this->resource, $length);
-        if (false !== $contents) {
-            return $contents;
-        }
-        throw new \RuntimeException('Unable to read from underlying resource');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rewind()
-    {
-        $this->seek(0);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function seek($offset, $whence = SEEK_SET)
-    {
-        if (!$this->isSeekable()) {
-            throw new \RuntimeException('Stream is not seekable');
-        }
-        if (0 !== \fseek($this->resource, $offset, $whence)) {
-            throw new \RuntimeException("Unable to seek stream upto offset {$offset}");
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function tell()
-    {
-        if (!isset($this->resource)) {
-            throw new \RuntimeException('Cannot determine position from detached resource');
-        }
-        $position = \ftell($this->resource);
-        if ($position !== false) {
-            return $position;
-        }
-        throw new \RuntimeException('Unable to determine stream position');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function write($string)
-    {
-        if (!$this->isWritable()) {
-            throw new \RuntimeException('Stream is not writable');
-        }
-        $result = \fwrite($this->resource, $string);
-        if (false !== $result) {
-            return $result;
-        }
-        throw new \RuntimeException('Unable to write to underlying resource');
+        return null;
     }
 }

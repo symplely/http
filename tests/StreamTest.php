@@ -3,191 +3,554 @@
 namespace Async\Tests;
 
 use Async\Http\Stream;
+use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
 
 class StreamTest extends TestCase
 {
-    public function testStreamCreation()
+    public function testInstanceOf(): void
     {
-        $this->assertInstanceOf(
-            'Psr\\Http\\Message\\StreamInterface',
-            new Stream()
-        );
-        $this->assertInstanceOf(
-            'Psr\\Http\\Message\\StreamInterface',
-            new Stream(fopen('php://memory', 'w+'))
-        );
+        $fixture = new Stream('');
+
+        self::assertInstanceOf(StreamInterface::class, $fixture);
+    }
+
+    public function testExceptionThrown(): void
+    {
+        $message = Stream::class.' must be constructed with a resource or string; integer given.';
         $this->expectException(\InvalidArgumentException::class);
-        new Stream(9999);
+        $this->expectExceptionMessage($message);
+
+        new Stream(rand());
     }
 
-    public function testClose()
+    public function testToString(): void
     {
-        $stream = new Stream();
-        $this->assertTrue($stream->isReadable());
-        $this->assertTrue($stream->isSeekable());
-        $this->assertTrue($stream->isWritable());
-        $stream->close();
-        $this->assertFalse($stream->isReadable());
-        $this->assertFalse($stream->isSeekable());
-        $this->assertFalse($stream->isWritable());
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        self::assertEquals($content, (string) $fixture);
     }
 
-    public function testDetach()
+    public function testToStringWhenNotAttached(): void
     {
-        $resource = fopen('php://memory', 'w+');
-        $stream = new Stream($resource);
-        $this->assertTrue($stream->isReadable());
-        $this->assertTrue($stream->isSeekable());
-        $this->assertTrue($stream->isWritable());
-        $detached = $stream->detach();
-        $this->assertSame($resource, $detached);
-        $this->assertFalse($stream->isReadable());
-        $this->assertFalse($stream->isSeekable());
-        $this->assertFalse($stream->isWritable());
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        self::assertEquals('', (string) $fixture);
     }
 
-    public function testEof()
+    public function testCloseWhenNotAttached(): void
     {
-        $resource = fopen('php://memory', 'w+');
-        fputs($resource, 'Something');
-        fseek($resource, 0);
-        $stream = new Stream($resource);
-        $this->assertFalse($stream->eof());
-        while (false === feof($resource)) {
-            fread($resource, 4);
+        $fixture = new Stream(uniqid());
+
+        $fixture->detach();
+
+        try {
+            $fixture->close();
+        } catch (\Throwable $e) {
+            self::fail($e->getMessage());
         }
-        $this->assertTrue($stream->eof());
-        fseek($resource, 0);
-        $this->assertFalse($stream->eof());
-        $stream->detach();
-        $this->assertTrue($stream->eof());
+
+        self::assertTrue(true);
     }
 
-    public function testContents()
+    public function testClose(): void
     {
-        $stream = new Stream();
-        $this->assertEmpty($stream->getContents());
-        $stream->write('Some');
-        $stream->rewind();
-        $this->assertEquals('Some', $stream->getContents());
-        $stream->write('thing');
-        $stream->rewind();
-        $this->assertEquals('Something', $stream->getContents());
-        $stream->detach();
-        $this->expectException(\RuntimeException::class);
-        $stream->getContents();
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+
+        $fixture->close();
+
+        fwrite($resource, uniqid());
+        rewind($resource);
+
+        self::assertEquals('', stream_get_contents($resource));
+
+        error_reporting($level);
     }
 
-    public function testReadable()
+    public function testDetach(): void
     {
-        $stream = new Stream('php://memory', 'r');
-        $this->assertTrue($stream->isReadable());
-        $this->assertFalse($stream->isWritable());
-        $tempnam = tempnam(sys_get_temp_dir(), 'rndm');
-        $stream = new Stream($tempnam, 'w');
-        $this->assertFalse($stream->isReadable());
-    }
+        $content = uniqid('content');
+        $fixture = new Stream($content);
 
-    public function testWritable()
-    {
-        $stream = new Stream('php://memory', 'r');
-        $this->assertFalse($stream->isWritable());
-        $stream = new Stream('php://memory', 'w');
-        $this->assertTrue($stream->isWritable());
-    }
-
-    public function testRead()
-    {
-        $stream = new Stream();
-        $stream->write('Something');
-        $stream->seek(0);
-        $this->assertEquals('Some', $stream->read(4));
-        $this->assertEquals('thing', $stream->read(5));
-    }
-
-    public function testReadFailure()
-    {
-        $stream = new Stream('php://memory');
-        $stream->close();
-        $this->expectException(\RuntimeException::class);
-        $stream->read(1);
-    }
-
-    public function testRewind()
-    {
-        $stream = new Stream();
-        $stream->write('Something');
-        while (!$stream->eof()) {
-            $stream->read(4);
+        $stream = $fixture->detach();
+        $actual = null;
+        if ($stream) {
+            $actual = stream_get_contents($stream, -1, 0);
         }
-        $this->assertTrue($stream->eof());
-        $this->assertEquals(9, $stream->tell());
-        $stream->rewind();
-        $this->assertEquals(0, $stream->tell());
+
+        self::assertEquals('', (string) $fixture);
+        self::assertEquals($content, $actual);
     }
 
-    public function testSeek()
+    public function testGetSize(): void
     {
-        $temp = tempnam(sys_get_temp_dir(), 'urifile');
-        $file = fopen($temp, 'w');
-        fputs($file, 'Something');
-        fclose($file);
-        $stream = new Stream($temp);
-        $stream->seek(4);
-        $this->assertEquals(4, $stream->tell());
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        $actual = $fixture->getSize();
+
+        self::assertEquals(strlen($content), $actual);
+    }
+
+    public function testGetSizeWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        $actual = $fixture->getSize();
+
+        self::assertNull($actual);
+    }
+
+    public function testTell(): void
+    {
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        self::assertEquals(0, $fixture->tell());
+        $fixture->seek(2);
+        self::assertEquals(2, $fixture->tell());
+    }
+
+    public function testTellWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        $message = 'Stream is not open.';
         $this->expectException(\RuntimeException::class);
-        $stream->seek(-4);
+        $this->expectExceptionMessage($message);
+
+        $fixture->tell();
     }
 
-    public function testSize()
+    public function testTellFailure(): void
     {
-        $stream = new Stream();
-        $stream->write($text = 'Something');
-        $this->assertEquals(strlen($text), $stream->getSize());
-    }
+        $level = error_reporting();
+        error_reporting(0);
 
-    public function testTell()
-    {
-        $resource = fopen('php://memory', 'w+');
-        $stream = new Stream($resource);
-        $stream->write('Something');
-        fseek($resource, 4);
-        $this->assertEquals(4, $stream->tell());
-        $stream->seek(6);
-        $this->assertEquals(6, $stream->tell());
-    }
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
 
-    public function testTellFailure()
-    {
-        $stream = new Stream();
-        $stream->close();
+        $message = 'Unable to get position of stream.';
         $this->expectException(\RuntimeException::class);
-        $stream->tell();
+        $this->expectExceptionMessage($message);
+
+        $fixture->tell();
+
+        error_reporting($level);
     }
 
-    public function testWrite()
+    public function testEof(): void
     {
-        $stream = new Stream();
-        $this->assertEquals(9, $stream->write('Something'));
-        $this->assertEquals(9, $stream->getSize());
-        $this->assertEquals('Something', (string)$stream);
+        $fixture = new Stream(uniqid());
+
+        self::assertFalse($fixture->eof());
+        $fixture->seek(0, SEEK_END);
+        $fixture->read(1);
+        self::assertTrue($fixture->eof());
     }
 
-    public function testWriteFailure()
+    public function testEofWhenNotAttached(): void
     {
-        $stream = new Stream('php://memory', 'r');
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        self::assertTrue($fixture->eof());
+    }
+
+    public function testIsSeekable(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        self::assertTrue($fixture->isSeekable());
+    }
+
+    public function testIsSeekableWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        self::assertFalse($fixture->isSeekable());
+    }
+
+    public function testIsSeekableNullMetadata(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        self::assertFalse($fixture->isSeekable());
+
+        error_reporting($level);
+    }
+
+    public function testSeek(): void
+    {
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        $seek = rand(0, strlen($content));
+        try {
+            $fixture->seek($seek, SEEK_SET);
+        } catch (\Throwable $e) {
+            self::fail($e->getMessage());
+        }
+
+        self::assertTrue(true);
+    }
+
+    public function testSeekThrowsException(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        $message = 'Failed to seek to offset 1.';
         $this->expectException(\RuntimeException::class);
-        $stream->write('Something');
+        $this->expectExceptionMessage($message);
+
+        $fixture->seek(1, SEEK_END);
     }
 
-    public function testToString()
+    public function testSeekWhenNotSeekable(): void
     {
-        $stream = new Stream('php://memory', 'w+');
-        $stream->write('Something');
-        $stream->write('.');
-        $this->assertEquals('Something.', (string)$stream);
-        $stream->detach();
-        $this->assertEmpty((string)$stream);
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        $message = 'Stream is not open.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->seek(rand());
+    }
+
+    public function testRewind(): void
+    {
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        $fixture->seek(0, SEEK_END);
+        self::assertEquals(strlen($content), $fixture->tell());
+
+        $fixture->rewind();
+        self::assertEquals(0, $fixture->tell());
+    }
+
+    public function testRewindWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        $message = 'Stream is not open.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->rewind();
+    }
+
+    public function testRewindFailure(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        $message = 'Failed to rewind stream.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->rewind();
+
+        error_reporting($level);
+    }
+
+    public function testIsWritable(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        self::assertTrue($fixture->isWritable());
+    }
+
+    public function testIsWritableWhenReadOnly(): void
+    {
+        $stream  = fopen('php://temp', 'r');
+        $fixture = new Stream($stream);
+
+        self::assertFalse($fixture->isWritable());
+    }
+
+    public function testIsWritableWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        self::assertFalse($fixture->isWritable());
+    }
+
+    public function testIsWritableNullMetadata(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        self::assertFalse($fixture->isWritable());
+
+        error_reporting($level);
+    }
+
+    /**
+     * @param int $bytes
+     * @param string $content
+     *
+     * @dataProvider sampleWriteData
+     */
+    public function testWrite(int $bytes, string $content): void
+    {
+        $fixture = new Stream('');
+
+        $actual = $fixture->write($content);
+
+        self::assertEquals($bytes, $actual);
+        self::assertEquals($content, (string) $fixture);
+    }
+
+    public function sampleWriteData(): array
+    {
+        $data = uniqid();
+
+        return [
+            'empty string' => [
+                'bytes' => 0,
+                'content' => '',
+            ],
+            'non-empty string' => [
+                'bytes' => strlen($data),
+                'content' => $data,
+            ],
+        ];
+    }
+
+    public function testWriteFromStream(): void
+    {
+        $handle = $this->createResource();
+        fwrite($handle, uniqid());
+
+        $content = uniqid('data');
+        $fixture = new Stream($handle);
+
+        $fixture->write($content);
+
+        self::assertEquals($content, (string) $fixture);
+    }
+
+    public function testWriteWhenNotAttached(): void
+    {
+        $fixture = new Stream('');
+        $fixture->close();
+
+        $message = 'Stream is not open.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->write(uniqid());
+    }
+
+    public function testWriteWhenNotWritable(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        $message = 'Stream is not writable.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->write(uniqid());
+
+        error_reporting($level);
+    }
+
+    public function testIsReadable(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        self::assertTrue($fixture->isReadable());
+    }
+
+    public function testIsReadableWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        self::assertFalse($fixture->isReadable());
+    }
+
+    public function testIsReadableNullMetadata(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        self::assertFalse($fixture->isReadable());
+
+        error_reporting($level);
+    }
+
+    public function testRead(): void
+    {
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        $actual = $fixture->read(strlen($content));
+
+        self::assertEquals($content, $actual);
+    }
+
+    public function testReadWhenNotAttached(): void
+    {
+        $fixture = new Stream('');
+        $fixture->close();
+
+        $message = 'Stream is not open.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->read(rand());
+    }
+
+    public function testReadWhenNotReadable(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        $message = 'Stream is not readable.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->read(rand());
+
+        error_reporting($level);
+    }
+
+    public function testGetContents(): void
+    {
+        $content = uniqid('content');
+        $fixture = new Stream($content);
+
+        $actual = $fixture->getContents();
+
+        self::assertEquals($content, $actual);
+    }
+
+    public function testGetContentsWhenNotAttached(): void
+    {
+        $fixture = new Stream('');
+        $fixture->close();
+
+        $message = 'Stream is not open.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->getContents();
+    }
+
+    public function testGetContentsFailure(): void
+    {
+        $level = error_reporting();
+        error_reporting(0);
+
+        $resource = $this->createResource();
+        $fixture  = new Stream($resource);
+        fclose($resource);
+
+        $message = 'Failed to get contents of stream.';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
+        $fixture->getContents();
+
+        error_reporting($level);
+    }
+
+    public function testGetMetadata(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        $actual = $fixture->getMetadata();
+
+        $expected = [
+            'wrapper_type' => 'PHP',
+            'stream_type' => 'TEMP',
+            'mode' => 'w+b',
+            'unread_bytes' => 0,
+            'seekable' => true,
+            'uri' => 'php://temp',
+        ];
+        self::assertEquals($expected, $actual);
+    }
+
+    public function testGetMetadataWithKey(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        $actual = $fixture->getMetadata('uri');
+
+        self::assertEquals('php://temp', $actual);
+    }
+
+    public function testGetMetadataWithUnknownKey(): void
+    {
+        $fixture = new Stream(uniqid());
+
+        $actual = $fixture->getMetadata(uniqid());
+
+        self::assertNull($actual);
+    }
+
+    public function testGetMetadataWhenNotAttached(): void
+    {
+        $fixture = new Stream(uniqid());
+        $fixture->close();
+
+        $actual = $fixture->getMetadata();
+
+        self::assertNull($actual);
+    }
+
+    /**
+     * @return resource
+     */
+    private function createResource()
+    {
+        $resource = fopen('php://temp', 'w');
+        if ($resource === false) {
+            self::fail('Unable to open temporary resource.');
+        }
+
+        return $resource;
     }
 }

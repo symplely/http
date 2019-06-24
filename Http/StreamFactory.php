@@ -14,27 +14,22 @@ use Psr\Http\Message\StreamFactoryInterface;
 class StreamFactory implements StreamFactoryInterface
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function createStream(string $contents = ''): StreamInterface
+    public function createStream(string $content = ''): StreamInterface
     {
-        $stream = new Stream();
-        if ($contents) {
-            $stream->write($contents);
-        }
-        return $stream;
+        return new Stream($content);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function createStreamFromFile(string $filename, string $mode = 'r'): StreamInterface
     {
-        return new Stream($filename, $mode);
+        return new Stream(fopen($filename, $mode));
     }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function createStreamFromResource($resource): StreamInterface
     {

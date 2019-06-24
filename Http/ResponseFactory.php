@@ -14,10 +14,11 @@ use Psr\Http\Message\ResponseFactoryInterface;
 class ResponseFactory implements ResponseFactoryInterface
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function createResponse(int $code = 200, string $reasonPhrase = 'php://memory'): ResponseInterface
+    public function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
     {
-        return new Response($code, $reasonPhrase);
+        $response = new Response();
+        return $response->withStatus($code, $reasonPhrase);
     }
 }

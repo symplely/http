@@ -13,13 +13,37 @@ use PHPUnit\Framework\TestCase;
  */
 class MessageAbstractTest extends TestCase
 {
-    public function testBody()
+    /**
+     * @var MessageAbstract
+     */
+    private $fixture = null;
+
+    protected function setUp(): void
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
-        $this->assertNull($message->getBody());
-        $body = $this->getMockBuilder('Psr\\Http\\Message\\StreamInterface')->getMock();
-        $this->assertSame($body, $message->withBody($body)->getBody());
+        parent::setUp();
+        $this->fixture = $this->getMockForAbstractClass(MessageAbstract::class);
+    }
+
+    public function testGetHeaderLineWhenPresent(): void
+    {
+        $header = uniqid('header');
+        $valueA = uniqid('value');
+        $valueB = uniqid('value');
+        $clone  = $this->fixture->withHeader($header, [$valueA, $valueB]);
+        $actual = $clone->getHeaderLine(strtoupper($header));
+        self::assertEquals($valueA.','.$valueB, $actual);
+    }
+
+    public function testWithBody(): void
+    {
+        $body = $this->createConfiguredMock(StreamInterface::class, ['getContents' => uniqid()]);
+        $clone = $this->fixture->withBody($body);
+        $old   = $this->fixture->getBody();
+        $new   = $clone->getBody();
+        self::assertNotSame($this->fixture, $clone);
+        self::assertEquals('', $old->getContents());
+        self::assertNotSame($body, $new);
+        self::assertSame($body->getContents(), $new->getContents());
     }
 
     public function testHeaders()
