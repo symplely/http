@@ -1,8 +1,14 @@
 # HTTP
 
+[![Build Status](https://travis-ci.org/symplely/http.svg?branch=master)](https://travis-ci.org/symplely/http)[![Build status](https://ci.appveyor.com/api/projects/status/o86w2h4990x7ehk7/branch/master?svg=true)](https://ci.appveyor.com/project/techno-express/http/branch/master)[![codecov](https://codecov.io/gh/symplely/http/branch/master/graph/badge.svg)](https://codecov.io/gh/symplely/http)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e18e2135abaf49f2b0fd9bf8d29c519d)](https://www.codacy.com/app/techno-express/http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=symplely/http&amp;utm_campaign=Badge_Grade)
+
 A complete [PSR-7](https://www.php-fig.org/psr/psr-7/) HTTP and [PSR-17](https://www.php-fig.org/psr/psr-17/) HTTP Factory implementation.
 This package is an fork of [bittyphp/http](https://github.com/bittyphp/http) and [vaibhavpandeyvpz/sandesh](https://github.com/vaibhavpandeyvpz/sandesh)
- 
+
+**This package is under development, the asynchronous parts has not been implemented or added.**
+
+This package will also be in compliance with **PSR-18**.
+
 ## Todo's
 
 * Integrate [symplely/coroutine](https://github.com/symplely/coroutine) package to achieve something like Python's aiohttp package.
