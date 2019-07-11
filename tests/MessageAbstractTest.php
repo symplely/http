@@ -51,10 +51,10 @@ class MessageAbstractTest extends TestCase
         /** @var MessageInterface $message */
         $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
         $message = $message->withHeader('Content-Length', '128');
-        $this->assertInternalType('array', $message->getHeaders());
+        $this->assertTrue(is_array($message->getHeaders()));
         $this->assertCount(1, $message->getHeaders());
         $this->assertTrue($message->hasHeader('Content-Length'));
-        $this->assertInternalType('array', $message->getHeader('Content-Length'));
+        $this->assertTrue(is_array($message->getHeader('Content-Length')));
         $this->assertEquals('128', $message->getHeaderLine('Content-Length'));
         $this->assertFalse($message->hasHeader('Content-Type'));
         $this->assertEmpty($message->getHeaderLine('Content-Type'));
