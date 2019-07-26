@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class ResponseSender
- * 
+ *
  * @package Async\Http
  */
 class ResponseSender implements ResponseSenderInterface

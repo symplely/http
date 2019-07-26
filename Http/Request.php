@@ -3,13 +3,12 @@
 namespace Async\Http;
 
 use Async\Http\MessageAbstract;
-use Async\Http\MessageValidations;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
  * Class Request
- * 
+ *
  * @package Async\Http
  */
 class Request extends MessageAbstract implements RequestInterface
@@ -37,15 +36,29 @@ class Request extends MessageAbstract implements RequestInterface
 
     /**
      * Request constructor.
-     * 
+     *
      * @param string $method
      * @param UriInterface $uri
      */
     public function __construct($method = 'GET', UriInterface $uri = null)
     {
-        MessageValidations::assertMethod($method);
+        self::assertMethod($method);
         $this->method = $method;
         $this->uri = $uri;
+    }
+
+    /**
+     * Validate HTTP methods.
+     *
+     * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+     *
+     * @param string $value
+     */
+    public static function assertMethod($value)
+    {
+        if (!\in_array($value, array('CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'))) {
+            throw new \InvalidArgumentException("'{$value}' is not a valid HTTP method");
+        }
     }
 
     /**
@@ -89,7 +102,7 @@ class Request extends MessageAbstract implements RequestInterface
      */
     public function withMethod($method)
     {
-        MessageValidations::assertMethod($method);
+        self::assertMethod($method);
         $clone = clone $this;
         $clone->method = $method;
         return $clone;

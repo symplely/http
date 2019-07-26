@@ -7,7 +7,7 @@ use Async\Http\CookieFactoryInterface;
 
 /**
  * Class CookieFactory
- * 
+ *
  * @package Async\Http
  */
 class CookieFactory implements CookieFactoryInterface

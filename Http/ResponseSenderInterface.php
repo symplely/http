@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Interface ResponseSenderInterface
- * 
+ *
  * @package Async\Http
  */
 interface ResponseSenderInterface

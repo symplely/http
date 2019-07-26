@@ -4,7 +4,7 @@ namespace Async\Http;
 
 /**
  * Class Cookie
- * 
+ *
  * @package Async\Http
  */
 class Cookie implements CookieInterface
@@ -140,10 +140,10 @@ class Cookie implements CookieInterface
     public function withExpiry($expiry)
     {
         if (null !== $expiry) {
-            MessageValidations::assertCookieExpiry($expiry);
+            self::assertCookieExpiry($expiry);
         }
         $clone = clone $this;
-        $clone->expiry = MessageValidations::normalizeCookieExpiry($expiry);
+        $clone->expiry = self::normalizeCookieExpiry($expiry);
         return $clone;
     }
 
@@ -232,5 +232,34 @@ class Cookie implements CookieInterface
             $params[] = 'Secure';
         }
         return \implode('; ', $params);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public static function assertCookieExpiry($value)
+    {
+        if (!($value instanceof \DateTime) && !\is_string($value) && !\is_int($value)) {
+            throw new \InvalidArgumentException(
+                "Cookie expiry must be string, int or an instance of \\DateTime; '%s' given",
+                \is_object($value) ? \get_class($value) : \gettype($value)
+            );
+        }
+    }
+
+    /**
+     * @param \DateTimeInterface|string|int|null $value
+     * @return string
+     */
+    public static function normalizeCookieExpiry($value)
+    {
+        if (\is_string($value)) {
+            $value = \DateTime::createFromFormat(Cookie::EXPIRY_FORMAT, $value);
+        } elseif (\is_int($value)) {
+            $value = \DateTime::createFromFormat('U', $value);
+        }
+        if ($value instanceof \DateTime) {
+            return $value;
+        }
     }
 }

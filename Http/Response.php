@@ -4,13 +4,12 @@ namespace Async\Http;
 
 use Async\Http\Stream;
 use Async\Http\MessageAbstract;
-use Async\Http\MessageValidations;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Response
- * 
+ *
  * @package Async\Http
  */
 class Response extends MessageAbstract implements ResponseInterface
@@ -107,7 +106,7 @@ class Response extends MessageAbstract implements ResponseInterface
      * @param int $statusCode
      * @param array $headers Array of string|string[]
      */
-    public function __construct($body = '', int $statusCode = 200, array $headers = []) 
+    public function __construct($body = '', int $statusCode = 200, array $headers = [])
     {
         $this->body         = $this->filterBody($body);
         $this->headers      = $this->filterHeaders($headers);

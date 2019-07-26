@@ -9,7 +9,7 @@ use Psr\Http\Message\RequestInterface;
 
 /**
  * Class RequestFactory
- * 
+ *
  * @package Async\Http
  */
 class RequestFactory implements RequestFactoryInterface

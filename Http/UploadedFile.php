@@ -7,7 +7,7 @@ use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class UploadedFile
- * 
+ *
  * @package Async\Http
  */
 class UploadedFile implements UploadedFileInterface

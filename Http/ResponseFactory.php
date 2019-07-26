@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 
 /**
  * Class ResponseFactory
- * 
+ *
  * @package Async\Http
  */
 class ResponseFactory implements ResponseFactoryInterface

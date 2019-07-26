@@ -7,7 +7,7 @@ use Psr\Http\Message\UriInterface;
 
 /**
  * Class Uri
- * 
+ *
  * @package Async\Http
  */
 class Uri implements UriInterface

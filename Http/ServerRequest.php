@@ -3,13 +3,12 @@
 namespace Async\Http;
 
 use Async\Http\Request;
-use Async\Http\MessageValidations;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class ServerRequest
- * 
+ *
  * @package Async\Http
  */
 class ServerRequest extends Request implements ServerRequestInterface
@@ -166,11 +165,26 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
+     * @param UploadedFileInterface[] $files
+     */
+    public static function assertUploadedFiles(array $files)
+    {
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFileInterface) {
+                throw new \UnexpectedValueException(sprintf(
+                    'Uploaded file must be an instance of Psr\\Http\\Message\\UploadedFileInterface; %s given',
+                    \is_scalar($file) ? \gettype($file) : \get_class($file)
+                ));
+            }
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        MessageValidations::assertUploadedFiles($uploadedFiles);
+        self::assertUploadedFiles($uploadedFiles);
         $clone = clone $this;
         $clone->uploadedFiles = $uploadedFiles;
         return $clone;

@@ -7,7 +7,7 @@ use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Stream
- * 
+ *
  * @package Async\Http
  */
 class Stream implements StreamInterface

@@ -4,7 +4,7 @@ namespace Async\Http;
 
 /**
  * Interface CookieInterface
- * 
+ *
  * @package Async\Http
  */
 interface CookieInterface

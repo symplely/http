@@ -7,7 +7,7 @@ use Psr\Http\Message\StreamInterface;
 
 /**
  * Class MessageAbstract
- * 
+ *
  * @package Async\Http
  */
 abstract class MessageAbstract implements MessageInterface
@@ -18,11 +18,6 @@ abstract class MessageAbstract implements MessageInterface
      * @var StreamInterface
      */
     protected $body;
-
-    /**
-     * @var array
-     */
-    protected $headerNames = array();
 
     /**
      * HTTP headers.
@@ -87,7 +82,7 @@ abstract class MessageAbstract implements MessageInterface
     public function hasHeader($name): bool
     {
         foreach ($this->headers as $header => $values) {
-            if (strcasecmp($name, $header) === 0) {
+            if (\strcasecmp($name, $header) === 0) {
                 return true;
             }
         }
@@ -101,7 +96,7 @@ abstract class MessageAbstract implements MessageInterface
     public function getHeader($name): array
     {
         foreach ($this->headers as $header => $values) {
-            if (strcasecmp($name, $header) === 0) {
+            if (\strcasecmp($name, $header) === 0) {
                 return $values;
             }
         }
@@ -114,7 +109,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getHeaderLine($name): string
     {
-        return implode(',', $this->getHeader($name));
+        return \implode(',', $this->getHeader($name));
     }
 
     /**
@@ -126,7 +121,7 @@ abstract class MessageAbstract implements MessageInterface
         $headers = [];
 
         foreach ($this->headers as $header => $values) {
-            if (strcasecmp($name, $header) === 0) {
+            if (\strcasecmp($name, $header) === 0) {
                 $headers[$name] = $value;
 
                 continue;
@@ -151,7 +146,7 @@ abstract class MessageAbstract implements MessageInterface
         $found   = false;
 
         foreach ($this->headers as $header => $values) {
-            if (strcasecmp($name, $header) === 0) {
+            if (\strcasecmp($name, $header) === 0) {
                 $found = true;
                 foreach ((array) $value as $newValue) {
                     $values[] = $newValue;
@@ -179,7 +174,7 @@ abstract class MessageAbstract implements MessageInterface
         $headers = [];
 
         foreach ($this->headers as $header => $values) {
-            if (strcasecmp($name, $header) === 0) {
+            if (\strcasecmp($name, $header) === 0) {
                 continue;
             }
 
@@ -261,14 +256,14 @@ abstract class MessageAbstract implements MessageInterface
      */
     protected function filterProtocolVersion(string $protocolVersion): string
     {
-        $version = str_replace('HTTP/', '', strtoupper($protocolVersion));
+        $version = \str_replace('HTTP/', '', \strtoupper($protocolVersion));
 
-        if (!in_array($version, $this->validProtocolVersions, true)) {
+        if (!\in_array($version, $this->validProtocolVersions, true)) {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Invalid protocol version "%s". Valid versions are: ["%s"]',
                     $protocolVersion,
-                    implode('", "', $this->validProtocolVersions)
+                    \implode('", "', $this->validProtocolVersions)
                 )
             );
         }
@@ -286,9 +281,9 @@ abstract class MessageAbstract implements MessageInterface
      */
     private function validateHeader(string $header, $values = []): void
     {
-        if (!preg_match('/^[A-Za-z0-9\x21\x23-\x27\x2a\x2b\x2d\x2e\x5e-\x60\x7c]+$/', $header)) {
+        if (!\preg_match('/^[A-Za-z0-9\x21\x23-\x27\x2a\x2b\x2d\x2e\x5e-\x60\x7c]+$/', $header)) {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Header "%s" contains invalid characters.',
                     $header
                 )
@@ -297,28 +292,28 @@ abstract class MessageAbstract implements MessageInterface
 
         if (!is_string($values) && !is_array($values)) {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Values for header "%s" must be a string or array; %s given.',
                     $header,
-                    gettype($values)
+                    \gettype($values)
                 )
             );
         }
 
         foreach ((array) $values as $value) {
-            if (!is_string($value)) {
+            if (!\is_string($value)) {
                 throw new \InvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Values for header "%s" must contain only strings; %s given.',
                         $header,
-                        gettype($value)
+                        \gettype($value)
                     )
                 );
             }
 
-            if (!preg_match('/^[\x09\x20-\x7e\x80-\xff]+$/', $value)) {
+            if (!\preg_match('/^[\x09\x20-\x7e\x80-\xff]+$/', $value)) {
                 throw new \InvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Header "%s" contains invalid value "%s".',
                         $header,
                         $value

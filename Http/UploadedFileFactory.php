@@ -8,7 +8,7 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 
 /**
  * Class UploadedFileFactory
- * 
+ *
  * @package Async\Http
  */
 class UploadedFileFactory implements UploadedFileFactoryInterface

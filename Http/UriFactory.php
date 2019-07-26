@@ -8,7 +8,7 @@ use Psr\Http\Message\UriFactoryInterface;
 
 /**
  * Class UriFactory
- * 
+ *
  * @package Async\Http
  */
 class UriFactory implements UriFactoryInterface
@@ -16,7 +16,7 @@ class UriFactory implements UriFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createUri(string $uri = ''): UriInterface 
+    public function createUri(string $uri = ''): UriInterface
     {
         $obj = new Uri();
         if (empty($uri)) {
