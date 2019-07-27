@@ -81,13 +81,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function hasHeader($name): bool
     {
-        foreach ($this->headers as $header => $values) {
-            if (\strcasecmp($name, $header) === 0) {
-                return true;
-            }
-        }
-
-        return false;
+		return ($this->findHeaderKey($name) !== false);
     }
 
     /**
@@ -95,10 +89,8 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getHeader($name): array
     {
-        foreach ($this->headers as $header => $values) {
-            if (\strcasecmp($name, $header) === 0) {
-                return $values;
-            }
+        if (($key = $this->findHeaderKey($name)) !== false) {
+            return $this->headers[$key];
         }
 
         return [];
@@ -130,7 +122,7 @@ abstract class MessageAbstract implements MessageInterface
             $headers[$header] = $values;
         }
 
-        $headers[$name]   = $value;
+        $headers[$name] = $value;
         $message->headers = $this->filterHeaders($headers);
 
         return $message;
@@ -141,27 +133,13 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function withAddedHeader($name, $value): MessageInterface
     {
+        if (($key = $this->findHeaderKey($name)) === false) {
+            $key = $name;
+        }
+    
         $message = clone $this;
-        $headers = [];
-        $found   = false;
-
-        foreach ($this->headers as $header => $values) {
-            if (\strcasecmp($name, $header) === 0) {
-                $found = true;
-                foreach ((array) $value as $newValue) {
-                    $values[] = $newValue;
-                }
-            }
-
-            $headers[$header] = $values;
-        }
-
-        if (!$found) {
-            $headers[$name] = $value;
-        }
-
-        $message->headers = $this->filterHeaders($headers);
-
+        $message->headers[$key][] = $value;
+    
         return $message;
     }
 
@@ -170,19 +148,13 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function withoutHeader($name): MessageInterface
     {
-        $message = clone $this;
-        $headers = [];
-
-        foreach ($this->headers as $header => $values) {
-            if (\strcasecmp($name, $header) === 0) {
-                continue;
-            }
-
-            $headers[$header] = $values;
+        if (($key = $this->findHeaderKey($name)) === false) {
+            return $this;
         }
-
-        $message->headers = $headers;
-
+    
+        $message = clone $this;
+        unset($message->headers[$key]);
+    
         return $message;
     }
 
@@ -208,6 +180,24 @@ abstract class MessageAbstract implements MessageInterface
         $message->body = $this->filterBody($body);
 
         return $message;
+    }
+
+    /**
+     * Find a header by its case-insensitive name.
+     *
+     * @param string $name
+     * @param mixed $default
+     * @return string|false
+     */
+    protected function findHeaderKey($name)
+    {
+        foreach($this->headers as $key => $value) {
+            if (\strtolower($name) === \strtolower($key)) {
+				return $key;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -290,7 +280,7 @@ abstract class MessageAbstract implements MessageInterface
             );
         }
 
-        if (!is_string($values) && !is_array($values)) {
+        if (!\is_string($values) && !\is_array($values)) {
             throw new \InvalidArgumentException(
                 \sprintf(
                     'Values for header "%s" must be a string or array; %s given.',
