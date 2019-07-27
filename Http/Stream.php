@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Async\Http;
 
@@ -130,12 +131,15 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return false;
         }
+
         $seekable = $this->getMetadata('seekable');
         if ($seekable === null) {
             return false;
         }
+
         return $seekable;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -232,6 +236,7 @@ class Stream implements StreamInterface
         }
         return $string;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -240,13 +245,12 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return null;
         }
-        $metadata = stream_get_meta_data($this->stream);
-        if ($key === null) {
-            return $metadata;
+
+        $metadata = \stream_get_meta_data($this->stream);
+        if ($key) {
+            $metadata = isset($metadata[$key]) ? $metadata[$key] : null;
         }
-        if (array_key_exists($key, $metadata)) {
-            return $metadata[$key];
-        }
-        return null;
+
+        return $metadata;
     }
 }

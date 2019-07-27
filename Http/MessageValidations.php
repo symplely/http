@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Async\Http;
 
 use Psr\Http\Message\UploadedFileInterface;
