@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Async\Http;
 
-use Async\Http\UriFactory;
+use Async\Http\Uri;
 use Async\Http\ServerRequest;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
@@ -24,7 +24,7 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
     public function createServerRequest(string $method, $uri, array $serverParams = []): ServerRequestInterface
     {
         if (\is_string($uri)) {
-            $factory = new UriFactory();
+            $factory = new Uri();
             $uri = $factory->createUri($uri);
         }
         return new ServerRequest($method, $uri);

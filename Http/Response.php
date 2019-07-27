@@ -149,6 +149,15 @@ class Response extends MessageAbstract implements ResponseInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public static function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
+    {
+        $response = new self();
+        return $response->withStatus($code, $reasonPhrase);
+    }
+
+    /**
      * Filters a status code to make sure it's valid.
      *
      * @param int $statusCode

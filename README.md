@@ -118,10 +118,10 @@ The `RequestFactory` is the most consistent way to build a request, regardless o
 ```php
 <?php
 
-use Async\Http\RequestFactory;
+use Async\Http\Request;
 use Psr\Http\Message\RequestInterface;
 
-$factory = new RequestFactory();
+$factory = new Request();
 
 /** @var RequestInterface */
 $request = $factory->createRequest('GET', '/some/path?foo=bar');
@@ -332,10 +332,10 @@ The `ResponseFactory` is the most consistent way to build a response, regardless
 ```php
 <?php
 
-use Async\Http\ResponseFactory;
+use Async\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 
-$factory = new ResponseFactory();
+$factory = new Response();
 
 /** @var ResponseInterface */
 $response = $factory->createResponse();
@@ -509,10 +509,10 @@ The `StreamFactory` is the most consistent way to build a `Stream`, regardless o
 ```php
 <?php
 
-use Async\Http\StreamFactory;
+use Async\Http\Stream;
 use Psr\Http\Message\StreamInterface;
 
-$factory = new StreamFactory();
+$factory = new Stream();
 
 /** @var StreamInterface */
 $stream = $factory->createStream('string of data');
@@ -604,10 +604,10 @@ The `UriFactory` is the most consistent way to build a `Uri`, regardless of the 
 ```php
 <?php
 
-use Async\Http\UriFactory;
+use Async\Http\Uri;
 use Psr\Http\Message\UriInterface;
 
-$factory = new UriFactory();
+$factory = new Uri();
 
 /** @var UriInterface */
 $uri = $factory->createUri('/some/path?foo=bar');

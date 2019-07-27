@@ -139,4 +139,17 @@ class Request extends MessageAbstract implements RequestInterface
         }
         return $clone;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function createRequest(string $method, $uri): RequestInterface
+    {
+        if (\is_string($uri)) {
+            $factory = new Uri();
+            $uri = $factory->createUri($uri);
+        }
+
+        return new self($method, $uri);
+    }
 }

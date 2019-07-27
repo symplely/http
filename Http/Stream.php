@@ -37,26 +37,27 @@ class Stream implements StreamInterface
      */
     public function __construct($stream = 'php://memory')
     {
-        if (is_resource($stream)) {
+        if (\is_resource($stream)) {
             $this->stream = $stream;
-            rewind($this->stream);
-        } elseif (is_string($stream)) {
-            $handle = fopen('php://temp', 'w+');
+            \rewind($this->stream);
+        } elseif (\is_string($stream)) {
+            $handle = \fopen('php://temp', 'w+');
             if ($handle) {
                 $this->stream = $handle;
-                fwrite($this->stream, $stream);
-                rewind($this->stream);
+                \fwrite($this->stream, $stream);
+                \rewind($this->stream);
             }
         } else {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     '%s must be constructed with a resource or string; %s given.',
                     self::class,
-                    gettype($stream)
+                    \gettype($stream)
                 )
             );
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -65,12 +66,13 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return '';
         }
-        $string = stream_get_contents($this->stream, -1, 0);
+        $string = \stream_get_contents($this->stream, -1, 0);
         if (!$string) {
             return '';
         }
         return $string;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -79,9 +81,10 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return;
         }
-        fclose($this->stream);
+        \fclose($this->stream);
         $this->stream = null;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -91,6 +94,7 @@ class Stream implements StreamInterface
         $this->stream = null;
         return $stream;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -99,9 +103,11 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return null;
         }
-        $stats = fstat($this->stream);
+
+        $stats = \fstat($this->stream);
         return $stats['size'] ?? null;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -110,12 +116,15 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             throw new \RuntimeException('Stream is not open.');
         }
+
         $position = ftell($this->stream);
         if ($position === false) {
             throw new \RuntimeException('Unable to get position of stream.');
         }
+
         return $position;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -123,6 +132,7 @@ class Stream implements StreamInterface
     {
         return $this->stream === null ? true : feof($this->stream);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -148,12 +158,14 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             throw new \RuntimeException('Stream is not open.');
         }
-        if (0 > fseek($this->stream, $offset, $whence)) {
+
+        if (0 > \fseek($this->stream, $offset, $whence)) {
             throw new \RuntimeException(
-                sprintf('Failed to seek to offset %s.', $offset)
+                \sprintf('Failed to seek to offset %s.', $offset)
             );
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -162,10 +174,12 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             throw new \RuntimeException('Stream is not open.');
         }
-        if (!rewind($this->stream)) {
+
+        if (!\rewind($this->stream)) {
             throw new \RuntimeException('Failed to rewind stream.');
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -174,13 +188,16 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             return false;
         }
+
         $mode = $this->getMetadata('mode');
         if ($mode === null) {
             return false;
         }
-        $mode = str_replace(['b', 'e'], '', $mode);
-        return in_array($mode, self::WRITABLE_MODES, true);
+
+        $mode = \str_replace(['b', 'e'], '', $mode);
+        return \in_array($mode, self::WRITABLE_MODES, true);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -192,8 +209,9 @@ class Stream implements StreamInterface
         if (!$this->isWritable()) {
             throw new \RuntimeException('Stream is not writable.');
         }
-        return fwrite($this->stream, $string) ?: 0;
+        return \fwrite($this->stream, $string) ?: 0;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -206,9 +224,10 @@ class Stream implements StreamInterface
         if ($mode === null) {
             return false;
         }
-        $mode = str_replace(['b', 'e'], '', $mode);
-        return in_array($mode, self::READABLE_MODES, true);
+        $mode = \str_replace(['b', 'e'], '', $mode);
+        return \in_array($mode, self::READABLE_MODES, true);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -217,11 +236,14 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             throw new \RuntimeException('Stream is not open.');
         }
+
         if (!$this->isReadable()) {
             throw new \RuntimeException('Stream is not readable.');
         }
-        return fread($this->stream, $length) ?: '';
+
+        return \fread($this->stream, $length) ?: '';
     }
+
     /**
      * {@inheritDoc}
      */
@@ -230,10 +252,12 @@ class Stream implements StreamInterface
         if ($this->stream === null) {
             throw new \RuntimeException('Stream is not open.');
         }
-        $string = stream_get_contents($this->stream);
+
+        $string = \stream_get_contents($this->stream);
         if ($string === false) {
             throw new \RuntimeException('Failed to get contents of stream.');
         }
+
         return $string;
     }
 
@@ -252,5 +276,29 @@ class Stream implements StreamInterface
         }
 
         return $metadata;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function createStream(string $content = ''): StreamInterface
+    {
+        return new self($content);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function createStreamFromFile(string $filename, string $mode = 'r'): StreamInterface
+    {
+        return new self(\fopen($filename, $mode));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function createStreamFromResource($resource): StreamInterface
+    {
+        return new self($resource);
     }
 }

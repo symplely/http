@@ -129,6 +129,31 @@ class ResponseTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
+    public function testCreateResponseDefault(): void
+    {
+        $actual = $this->fixture->createResponse();
+
+        self::assertInstanceOf(ResponseInterface::class, $actual);
+        self::assertEquals(200, $actual->getStatusCode());
+        self::assertEquals('OK', $actual->getReasonPhrase());
+    }
+
+    /**
+     * @param int $code
+     * @param string $reason
+     * @param string $expected
+     *
+     * @dataProvider sampleStatus
+     */
+    public function testCreateResponse(int $code, string $reason, string $expected): void
+    {
+        $actual = $this->fixture->createResponse($code, $reason);
+
+        self::assertInstanceOf(ResponseInterface::class, $actual);
+        self::assertEquals($code, $actual->getStatusCode());
+        self::assertEquals($expected, $actual->getReasonPhrase());
+    }
+
     /**
      * Gets a list of valid status codes and reasons.
      *
