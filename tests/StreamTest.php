@@ -555,7 +555,7 @@ class StreamTest extends TestCase
     {
         $this->assertInstanceOf(
             'Psr\\Http\\Message\\StreamInterface',
-            $stream = $this->factory->createStream()
+            $stream = $this->factory->create()
         );
         $this->assertEmpty($stream->getContents());
         $stream->write($text = 'Hello');
@@ -566,7 +566,7 @@ class StreamTest extends TestCase
     {
         $this->assertInstanceOf(
             'Psr\\Http\\Message\\StreamInterface',
-            $stream = $this->factory->createStream($text = 'Hello')
+            $stream = Stream::create($text = 'Hello')
         );
         $this->assertEquals($text, (string)$stream);
     }
@@ -575,7 +575,7 @@ class StreamTest extends TestCase
     {
         $this->assertInstanceOf(
             'Psr\\Http\\Message\\StreamInterface',
-            $stream = $this->factory->createStreamFromFile(__FILE__, 'r')
+            $stream = Stream::createFromFile(__FILE__, 'r')
         );
         $this->assertNotEmpty($text = $stream->read(5));
         $this->assertEquals('<?php', $text);
@@ -587,7 +587,7 @@ class StreamTest extends TestCase
         $handle = fopen(__FILE__, 'r');
         $this->assertInstanceOf(
             'Psr\\Http\\Message\\StreamInterface',
-            $stream = $this->factory->createStreamFromResource($handle)
+            $stream = Stream::createFromResource($handle)
         );
         $this->assertNotEmpty($text = $stream->read(5));
         $this->assertEquals('<?php', $text);

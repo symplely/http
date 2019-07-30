@@ -233,13 +233,13 @@ class UriTest extends TestCase
             ->withUserInfo('someone', 'secret');
         $this->assertEquals('http://someone:secret@domain.tld:9090/subdir?test=true#phpunit', (string)$uri);
     }
-    
-    public function testCreateUri()
+
+    public function testCreate()
     {
         $factory = new Uri();
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri = $factory->createUri());
+        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri = $factory->create());
         $this->assertEmpty((string)$uri);
-        $uri = $factory->createUri($url = 'http://someone:secret@domain.tld:9090/subdir?test=true#phpunit');
+        $uri = $factory->create($url = 'http://someone:secret@domain.tld:9090/subdir?test=true#phpunit');
         $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri);
         $this->assertEquals('http', $uri->getScheme());
         $this->assertEquals('someone:secret', $uri->getUserInfo());
@@ -257,6 +257,6 @@ class UriTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $factory = new Uri();
-        $factory->createUri('http:///domain.tld/');
+        $factory->create('http:///domain.tld/');
     }
 }

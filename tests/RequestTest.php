@@ -35,12 +35,12 @@ class RequestTest extends TestCase
         $uri = new Uri();
         $this->assertEquals(
             '/subdir',
-            $request->withUri($uri->createUri('http://domain.tld/subdir'))
+            $request->withUri($uri->create('http://domain.tld/subdir'))
                 ->getRequestTarget()
         );
         $this->assertEquals(
             '/subdir?test=true',
-            $request->withUri($uri->createUri('http://domain.tld/subdir?test=true'))
+            $request->withUri($uri->create('http://domain.tld/subdir?test=true'))
                 ->getRequestTarget()
         );
     }
@@ -55,16 +55,16 @@ class RequestTest extends TestCase
     {
         $request = new Request();
         $factory = new Uri();
-        $request = $request->withUri($factory->createUri('http://domain.tld:9090'), true);
+        $request = $request->withUri($factory->create('http://domain.tld:9090'), true);
         $this->assertEquals('domain.tld:9090', $request->getHeaderLine('Host'));
-        $request = $request->withUri($factory->createUri('http://otherdomain.tld'), true);
+        $request = $request->withUri($factory->create('http://otherdomain.tld'), true);
         $this->assertEquals('domain.tld:9090', $request->getHeaderLine('Host'));
     }
 
-    public function testCreateRequest()
+    public function testcreate()
     {
         $factory = new Request();
-        $request = $factory->createRequest('GET', 'http://domain.tld:9090/subdir?test=true#phpunit');
+        $request = $factory->create('GET', 'http://domain.tld:9090/subdir?test=true#phpunit');
         $this->assertInstanceOf('Psr\\Http\\Message\\RequestInterface', $request);
         $this->assertEquals('1.1', $request->getProtocolVersion());
         $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri = $request->getUri());

@@ -264,4 +264,43 @@ class Cookie implements CookieInterface
             return $value;
         }
     }
+
+    /**
+     * @param string $header
+     * @return CookieInterface
+     */
+    public static function create($header)
+    {
+        $parts = \preg_split('~\\s*[;]\\s*~', $header);
+        list($name, $value) = \explode('=', \array_shift($parts), 2);
+        $cookie = new self($name);
+        if (\is_string($value)) {
+            $cookie = $cookie->withValue(\urldecode($value));
+        }
+        while ($nvp = \array_shift($parts)) {
+            $nvp = \explode('=', $nvp, 2);
+            $value = \count($nvp) === 2 ? $nvp[1] : null;
+            switch (\strtolower($nvp[0])) {
+                case 'domain':
+                    $cookie = $cookie->withDomain($value);
+                    break;
+                case 'expires':
+                    $cookie = $cookie->withExpiry($value);
+                    break;
+                case 'httponly':
+                    $cookie = $cookie->withHttpOnly(true);
+                    break;
+                case 'max-age':
+                    $cookie = $cookie->withMaxAge($value);
+                    break;
+                case 'path':
+                    $cookie = $cookie->withPath($value);
+                    break;
+                case 'secure':
+                    $cookie = $cookie->withSecure(true);
+                    break;
+            }
+        }
+        return $cookie;
+    }
 }

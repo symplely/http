@@ -2,6 +2,7 @@
 
 namespace Async\Tests;
 
+use Async\Http\Stream;
 use Async\Http\UploadedFile;
 use PHPUnit\Framework\TestCase;
 
@@ -45,5 +46,17 @@ class UploadedFileTest extends TestCase
         $file->moveTo(tempnam(sys_get_temp_dir(), 'urifile'));
         $this->expectException(\RuntimeException::class);
         $file->moveTo(tempnam(sys_get_temp_dir(), 'urifile'));
+    }
+
+    public function testUploadedFile()
+    {
+        $streamFile = new Stream(__FILE__, 'r');
+        $file = UploadedFile::create($streamFile, $size = filesize(__FILE__), UPLOAD_ERR_OK, $name = basename(__FILE__), 'text/plain');
+        $this->assertInstanceOf('Psr\\Http\\Message\\UploadedFileInterface', $file);
+        $this->assertEquals($name, $file->getClientFilename());
+        $this->assertEquals('text/plain', $file->getClientMediaType());
+        $this->assertEquals(UPLOAD_ERR_OK, $file->getError());
+        $this->assertEquals($size, $file->getSize());
+        $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $file->getStream());
     }
 }

@@ -138,10 +138,10 @@ abstract class MessageAbstract implements MessageInterface
         if (($key = $this->findHeaderKey($name)) === false) {
             $key = $name;
         }
-    
+
         $message = clone $this;
         $message->headers[$key][] = $value;
-    
+
         return $message;
     }
 
@@ -153,10 +153,10 @@ abstract class MessageAbstract implements MessageInterface
         if (($key = $this->findHeaderKey($name)) === false) {
             return $this;
         }
-    
+
         $message = clone $this;
         unset($message->headers[$key]);
-    
+
         return $message;
     }
 

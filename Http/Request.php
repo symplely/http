@@ -141,13 +141,18 @@ class Request extends MessageAbstract implements RequestInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Create a new request.
+     *
+     * @param string $method The HTTP method associated with the request.
+     * @param UriInterface|string $uri The URI associated with the request.
+     * If the value is a string, the factory `MUST` create a UriInterface instance based on it.
+     * @return RequestInterface
      */
-    public static function createRequest(string $method, $uri): RequestInterface
+    public static function create(string $method, $uri): RequestInterface
     {
         if (\is_string($uri)) {
             $factory = new Uri();
-            $uri = $factory->createUri($uri);
+            $uri = $factory->create($uri);
         }
 
         return new self($method, $uri);

@@ -85,4 +85,10 @@ interface CookieInterface
      * @return static
      */
     public function withValue($value);
+
+    /**
+     * @param string $header
+     * @return CookieInterface
+     */
+    public static function create($header);
 }

@@ -25,7 +25,7 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
     {
         if (\is_string($uri)) {
             $factory = new Uri();
-            $uri = $factory->createUri($uri);
+            $uri = $factory->create($uri);
         }
         return new ServerRequest($method, $uri);
     }

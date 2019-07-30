@@ -79,4 +79,31 @@ class CookieTest extends TestCase
             ->withPath('/admin')
             ->withSecure(true));
     }
+
+    public function testBasic()
+    {
+        $cookie = Cookie::create('PHPSESS=1234567890');
+        $this->assertEquals('PHPSESS', $cookie->getName());
+        $this->assertEquals('1234567890', $cookie->getValue());
+    }
+
+    public function testWithAttributes()
+    {
+        $time = new \DateTime();
+        $cookie = Cookie::create(sprintf(
+            'PHPSESS=1234567890; Domain=domain.tld; Expires=%s; HttpOnly; Max-Age=86400; Path=/admin; Secure',
+            $time->format(Cookie::EXPIRY_FORMAT)
+        ));
+        $this->assertEquals('domain.tld', $cookie->getDomain());
+        $this->assertEquals(
+            $time->format(Cookie::EXPIRY_FORMAT),
+            $cookie->getExpiry()->format(Cookie::EXPIRY_FORMAT)
+        );
+        $this->assertEquals(86400, $cookie->getMaxAge());
+        $this->assertEquals('PHPSESS', $cookie->getName());
+        $this->assertEquals('/admin', $cookie->getPath());
+        $this->assertEquals('1234567890', $cookie->getValue());
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
+    }
 }

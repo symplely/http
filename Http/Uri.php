@@ -240,9 +240,13 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Create a new URI.
+     *
+     * @param string $uri
+     * @return UriInterface
+     * @throws \InvalidArgumentException If the given URI cannot be parsed.
      */
-    public static function createUri(string $uri = ''): UriInterface
+    public function create(string $uri = ''): UriInterface
     {
         $obj = new self();
         if (empty($uri)) {
