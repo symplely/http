@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Async\Http;
 
-use Async\Http\Stream;
 use Async\Http\MessageAbstract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -108,7 +107,7 @@ class Response extends MessageAbstract implements ResponseInterface
      * @param int $statusCode
      * @param array $headers Array of string|string[]
      */
-    public function __construct($body = '', int $statusCode = 200, array $headers = [])
+    public function __construct(int $statusCode = 200, $body = '', array $headers = [])
     {
         $this->body         = $this->filterBody($body);
         $this->headers      = $this->filterHeaders($headers);
@@ -151,7 +150,7 @@ class Response extends MessageAbstract implements ResponseInterface
     /**
      * {@inheritDoc}
      */
-    public static function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
+    public static function create(int $code = 200, string $reasonPhrase = ''): ResponseInterface
     {
         $response = new self();
         return $response->withStatus($code, $reasonPhrase);

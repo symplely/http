@@ -10,7 +10,7 @@ class RedirectResponseTest extends TestCase
 {
     public function testInstanceOf(): void
     {
-        $fixture = new RedirectResponse(uniqid());
+        $fixture = new RedirectResponse(302, uniqid());
 
         self::assertInstanceOf(ResponseInterface::class, $fixture);
     }
@@ -19,7 +19,7 @@ class RedirectResponseTest extends TestCase
     {
         $uri = uniqid();
 
-        $fixture = new RedirectResponse($uri);
+        $fixture = new RedirectResponse(302, $uri);
 
         $expected = '<html><body><p>This page has been moved <a href="'
             .htmlspecialchars($uri, ENT_QUOTES, 'UTF-8')
@@ -38,8 +38,8 @@ class RedirectResponseTest extends TestCase
         $uri     = uniqid();
 
         $fixture = new RedirectResponse(
-            $uri,
             200,
+            $uri,
             [
                 $headerA => $valueA,
                 'LoCaTioN' => uniqid(),
@@ -61,7 +61,7 @@ class RedirectResponseTest extends TestCase
     {
         $statusCode = rand(1, 5) * 100 + rand(0, 3);
 
-        $fixture = new RedirectResponse(uniqid(), $statusCode);
+        $fixture = new RedirectResponse($statusCode, uniqid());
         $actual  = $fixture->getStatusCode();
 
         self::assertEquals($statusCode, $actual);

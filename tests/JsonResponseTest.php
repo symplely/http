@@ -33,8 +33,8 @@ class JsonResponseTest extends TestCase
         $valueB  = uniqid('value');
 
         $fixture = new JsonResponse(
-            '',
             200,
+            '',
             [
                 $headerA => $valueA,
                 'CoNTeNt-TyPe' => uniqid(),
@@ -57,7 +57,7 @@ class JsonResponseTest extends TestCase
         $data = [uniqid('a') => uniqid('a'), uniqid('b') => uniqid('b')];
         $json = json_encode($data);
 
-        $fixture = new JsonResponse($data);
+        $fixture = new JsonResponse(200, $data);
         $actual  = $fixture->getBody();
 
         self::assertEquals($json, (string) $actual);
@@ -67,7 +67,7 @@ class JsonResponseTest extends TestCase
     {
         $statusCode = rand(1, 5) * 100 + rand(0, 3);
 
-        $fixture = new JsonResponse('', $statusCode);
+        $fixture = new JsonResponse($statusCode, '');
         $actual  = $fixture->getStatusCode();
 
         self::assertEquals($statusCode, $actual);
@@ -78,6 +78,6 @@ class JsonResponseTest extends TestCase
         self::expectException(\RuntimeException::class);
         self::expectExceptionMessage('Failed to encode data as JSON.');
 
-        new JsonResponse(NAN);
+        new JsonResponse(200, NAN);
     }
 }

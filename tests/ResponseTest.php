@@ -86,7 +86,7 @@ class ResponseTest extends TestCase
     {
         $body = uniqid();
 
-        $fixture = new Response($body);
+        $fixture = new Response(200, $body);
 
         self::assertEquals($body, (string) $fixture->getBody());
     }
@@ -97,7 +97,7 @@ class ResponseTest extends TestCase
         $code   = intval(array_rand($codes));
         $reason = $codes[$code];
 
-        $fixture = new Response('', $code);
+        $fixture = new Response($code, '');
 
         self::assertEquals($code, $fixture->getStatusCode());
         self::assertEquals($reason, $fixture->getReasonPhrase());
@@ -111,7 +111,7 @@ class ResponseTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
 
-        new Response('', $code);
+        new Response($code, '');
     }
 
     public function testHeaders(): void
@@ -121,7 +121,7 @@ class ResponseTest extends TestCase
         $valueA  = uniqid('value');
         $valueB  = uniqid('value');
 
-        $fixture = new Response('', 200, [$headerA => $valueA, $headerB => [$valueB]]);
+        $fixture = new Response(200, '', [$headerA => $valueA, $headerB => [$valueB]]);
 
         $actual   = $fixture->getHeaders();
         $expected = [$headerA => [$valueA], $headerB => [$valueB]];
@@ -131,7 +131,7 @@ class ResponseTest extends TestCase
 
     public function testCreateResponseDefault(): void
     {
-        $actual = $this->fixture->createResponse();
+        $actual = $this->fixture->create();
 
         self::assertInstanceOf(ResponseInterface::class, $actual);
         self::assertEquals(200, $actual->getStatusCode());
@@ -147,7 +147,7 @@ class ResponseTest extends TestCase
      */
     public function testCreateResponse(int $code, string $reason, string $expected): void
     {
-        $actual = $this->fixture->createResponse($code, $reason);
+        $actual = $this->fixture->create($code, $reason);
 
         self::assertInstanceOf(ResponseInterface::class, $actual);
         self::assertEquals($code, $actual->getStatusCode());

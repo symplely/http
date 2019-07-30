@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Async\Http;
 
+use Async\Http\Stream;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 

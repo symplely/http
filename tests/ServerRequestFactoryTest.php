@@ -3,7 +3,6 @@
 namespace Async\Tests;
 
 use Async\Http\ServerRequestFactory;
-use Psr\Http\Message\UriInterface;
 use PHPUnit\Framework\TestCase;
 
 class ServerRequestFactoryTest extends TestCase
