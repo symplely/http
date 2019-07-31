@@ -124,7 +124,7 @@ use Psr\Http\Message\RequestInterface;
 $factory = new Request();
 
 /** @var RequestInterface */
-$request = $factory->createRequest('GET', '/some/path?foo=bar');
+$request = $factory->create('GET', '/some/path?foo=bar');
 
 ```
 
@@ -338,9 +338,9 @@ use Psr\Http\Message\ResponseInterface;
 $factory = new Response();
 
 /** @var ResponseInterface */
-$response = $factory->createResponse();
-$response = $factory->createResponse(404);
-$response = $factory->createResponse(404, 'Not Found');
+$response = $factory->create();
+$response = $factory->create(404);
+$response = $factory->create(404, 'Not Found');
 
 ```
 
@@ -455,18 +455,18 @@ The `UploadedFileFactory` is the most consistent way to build an `UploadedFile`,
 ```php
 <?php
 
-use Async\Http\UploadedFileFactory;
+use Async\Http\UploadedFile;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-$factory = new UploadedFileFactory();
+$factory = new UploadedFile();
 
 /** @var StreamInterface */
 $stream = ...;
 
 /** @var UploadedFileInterface */
-$file = $factory->createUploadedFile($stream);
-$file = $factory->createUploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
+$file = $factory->create($stream);
+$file = $factory->create($stream, $size, $error, $clientFilename, $clientMediaType);
 
 ```
 
@@ -515,9 +515,9 @@ use Psr\Http\Message\StreamInterface;
 $factory = new Stream();
 
 /** @var StreamInterface */
-$stream = $factory->createStream('string of data');
-$stream = $factory->createStreamFromFile('/path/to/file', 'r');
-$stream = $factory->createStreamFromResource($resource);
+$stream = $factory->create('string of data');
+$stream = $factory->createFromFile('/path/to/file', 'r');
+$stream = $factory->createFromResource($resource);
 
 ```
 
@@ -610,8 +610,8 @@ use Psr\Http\Message\UriInterface;
 $factory = new Uri();
 
 /** @var UriInterface */
-$uri = $factory->createUri('/some/path?foo=bar');
-$uri = $factory->createUri('https://example.com/search?q=test');
+$uri = $factory->create('/some/path?foo=bar');
+$uri = $factory->create('https://example.com/search?q=test');
 
 ```
 
@@ -696,13 +696,13 @@ Returns a new instance with the specified fragment.
 ```php
 <?php
 
-use Async\Http\CookieFactory;
+use Async\Http\Cookie;
 
 /**
  * @desc Parse Set-Cookie header(s) and create an instance of CookieInterface.
  */
-$cookie = (new CookieFactory())
-    ->createCookie('PHPSESS=1234567890; Domain=domain.tld; Expires=Wed, 21 Oct 2015 07:28:00 GMT; HttpOnly; Max-Age=86400; Path=/admin; Secure');
+$cookie = (new Cookie())
+    ->create('PHPSESS=1234567890; Domain=domain.tld; Expires=Wed, 21 Oct 2015 07:28:00 GMT; HttpOnly; Max-Age=86400; Path=/admin; Secure');
 
 /**
  * @desc After making changes you can just cast it to a RFC-6265 valid string as show below.
