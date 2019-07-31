@@ -65,9 +65,9 @@ class RequestTest extends TestCase
     {
         $factory = new Request();
         $request = $factory->create('GET', 'http://domain.tld:9090/subdir?test=true#phpunit');
-        $this->assertInstanceOf('Psr\\Http\\Message\\RequestInterface', $request);
+        $this->assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $request);
         $this->assertEquals('1.1', $request->getProtocolVersion());
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri = $request->getUri());
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $uri = $request->getUri());
         $this->assertEquals('http://domain.tld:9090/subdir?test=true#phpunit', (string)$uri);
     }
 }

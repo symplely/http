@@ -237,10 +237,10 @@ class UriTest extends TestCase
     public function testCreate()
     {
         $factory = new Uri();
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri = $factory->create());
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $uri = $factory->create());
         $this->assertEmpty((string)$uri);
         $uri = $factory->create($url = 'http://someone:secret@domain.tld:9090/subdir?test=true#phpunit');
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $uri);
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $uri);
         $this->assertEquals('http', $uri->getScheme());
         $this->assertEquals('someone:secret', $uri->getUserInfo());
         $this->assertEquals('domain.tld', $uri->getHost());

@@ -3,7 +3,6 @@
 namespace Async\Http;
 
 use Async\Http\MessageAbstract;
-use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -48,8 +47,7 @@ class MessageAbstractTest extends TestCase
 
     public function testHeaders()
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
+        $message = $this->getMockForAbstractClass(\Async\Http\MessageAbstract::class);
         $message = $message->withHeader('Content-Length', '128');
         $this->assertTrue(is_array($message->getHeaders()));
         $this->assertCount(1, $message->getHeaders());
@@ -93,8 +91,7 @@ class MessageAbstractTest extends TestCase
 
     public function testHeadersCaseInsensitive()
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
+        $message = $this->getMockForAbstractClass(\Async\Http\MessageAbstract::class);
         $message = $message->withHeader('Content-Length', $length = '128')
             ->withHeader('Content-Type', $type = 'text/html; charset=utf-8');
         $this->assertTrue($message->hasHeader('Content-Length'));
@@ -125,24 +122,21 @@ class MessageAbstractTest extends TestCase
 
     public function testHeaderInvalidName()
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
+        $message = $this->getMockForAbstractClass(\Async\Http\MessageAbstract::class);
         $this->expectException(\InvalidArgumentException::class);
         $message->withHeader('Some-Invalid<Name', 'Value');
     }
 
     public function testHeaderInvalidValue()
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
+        $message = $this->getMockForAbstractClass(\Async\Http\MessageAbstract::class);
         $this->expectException(\InvalidArgumentException::class);
         $message->withHeader('Some-Header', "Value\r\n");
     }
 
     public function testProtocolVersion()
     {
-        /** @var MessageInterface $message */
-        $message = $this->getMockForAbstractClass('Async\\Http\\MessageAbstract');
+        $message = $this->getMockForAbstractClass(\Async\Http\MessageAbstract::class);
         $this->assertNotEmpty($message->getProtocolVersion());
         $this->assertEquals('1.1', $message->getProtocolVersion());
         $this->assertEquals(

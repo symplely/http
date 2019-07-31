@@ -180,7 +180,7 @@ abstract class MessageAbstract implements MessageInterface
     {
         $message = clone $this;
 
-        $message->body = $body;
+        $message->body = $this->filterBody($body);
 
         return $message;
     }

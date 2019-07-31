@@ -11,9 +11,9 @@ class ServerRequestFactoryTest extends TestCase
     {
         $factory = new ServerRequestFactory();
         $request = $factory->createServerRequest('POST', 'http://domain.tld:9090/subdir?test=true#phpunit');
-        $this->assertInstanceOf('Psr\\Http\\Message\\ServerRequestInterface', $request);
+        $this->assertInstanceOf(\Psr\Http\Message\ServerRequestInterface::class, $request);
         $this->assertEquals('1.1', $request->getProtocolVersion());
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $request->getUri());
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $request->getUri());
         $this->assertEquals('POST', $request->getMethod());
         $this->assertEquals('domain.tld', $request->getUri()->getHost());
         $this->assertEquals(9090, $request->getUri()->getPort());
@@ -36,9 +36,9 @@ class ServerRequestFactoryTest extends TestCase
             'SERVER_PORT' => '9090',
             'SERVER_PROTOCOL' => 'HTTP/1.0',
         ));
-        $this->assertInstanceOf('Psr\\Http\\Message\\ServerRequestInterface', $request);
+        $this->assertInstanceOf(\Psr\Http\Message\ServerRequestInterface::class, $request);
         $this->assertEquals('1.0', $request->getProtocolVersion());
-        $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $request->getUri());
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $request->getUri());
         $this->assertEquals('128', $request->getHeaderLine('Content-Length'));
         $this->assertEquals('application/x-www-form-urlencoded', $request->getHeaderLine('Content-Type'));
         $this->assertEquals('POST', $request->getMethod());

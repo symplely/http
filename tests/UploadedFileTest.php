@@ -15,7 +15,7 @@ class UploadedFileTest extends TestCase
         $this->assertEquals('text/plain', $file->getClientMediaType());
         $this->assertEquals(UPLOAD_ERR_OK, $file->getError());
         $this->assertEquals(128, $file->getSize());
-        $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $file->getStream());
+        $this->assertInstanceOf(\Psr\Http\Message\StreamInterface::class, $file->getStream());
     }
 
     public function testCreationInvalidFile()
@@ -52,11 +52,11 @@ class UploadedFileTest extends TestCase
     {
         $streamFile = new Stream(__FILE__, 'r');
         $file = UploadedFile::create($streamFile, $size = filesize(__FILE__), UPLOAD_ERR_OK, $name = basename(__FILE__), 'text/plain');
-        $this->assertInstanceOf('Psr\\Http\\Message\\UploadedFileInterface', $file);
+        $this->assertInstanceOf(\Psr\Http\Message\UploadedFileInterface::class, $file);
         $this->assertEquals($name, $file->getClientFilename());
         $this->assertEquals('text/plain', $file->getClientMediaType());
         $this->assertEquals(UPLOAD_ERR_OK, $file->getError());
         $this->assertEquals($size, $file->getSize());
-        $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $file->getStream());
+        $this->assertInstanceOf(\Psr\Http\Message\StreamInterface::class, $file->getStream());
     }
 }
