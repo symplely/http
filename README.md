@@ -2,12 +2,9 @@
 
 [![Build Status](https://travis-ci.org/symplely/http.svg?branch=master)](https://travis-ci.org/symplely/http)[![Build status](https://ci.appveyor.com/api/projects/status/o86w2h4990x7ehk7/branch/master?svg=true)](https://ci.appveyor.com/project/techno-express/http/branch/master)[![codecov](https://codecov.io/gh/symplely/http/branch/master/graph/badge.svg)](https://codecov.io/gh/symplely/http)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e18e2135abaf49f2b0fd9bf8d29c519d)](https://www.codacy.com/app/techno-express/http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=symplely/http&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/eb6c23530d8c9f864f16/maintainability)](https://codeclimate.com/github/symplely/http/maintainability)
 
-A complete [PSR-7](https://www.php-fig.org/psr/psr-7/) HTTP and [PSR-17](https://www.php-fig.org/psr/psr-17/) HTTP Factory implementation.
-This package is an fork of [bittyphp/http](https://github.com/bittyphp/http) and [vaibhavpandeyvpz/sandesh](https://github.com/vaibhavpandeyvpz/sandesh)
+A complete [PSR-7](https://www.php-fig.org/psr/psr-7/) HTTP and [PSR-18](https://www.php-fig.org/psr/psr-18/) Client implementation.
 
-**This package is under development, the asynchronous parts has not been implemented or added.**
-
-This package will also be in compliance with **PSR-18**.
+**This package is under development, the asynchronous parts has not been implemented or PSR-18 added.**
 
 ## Todo's
 
@@ -17,46 +14,46 @@ This package will also be in compliance with **PSR-18**.
 
 It's best to install using [Composer](https://getcomposer.org/).
 
-    composer require symplely/http
+```text
+composer require symplely/http
+```
 
 ## Outline
 
-- [Abstract Messages](#abstract-messages)
-- [Requests](#requests)
-- [Responses](#responses)
-- [File Uploads](#file-uploads)
-- [Streams](#streams)
-- [URIs](#uris)
+* [Abstract Messages](#abstract-messages)
+* [Requests](#requests)
+* [Responses](#responses)
+* [File Uploads](#file-uploads)
+* [Streams](#streams)
+* [URIs](#uris)
 
 ## Abstract Messages
 
 All `Request` and `Response` classes share a base `MessageAbstract` class that provides methods for interacting with the headers and body of a message.
 
-### Available Methods
-
 The following methods are available on all `Request` and `Response` objects:
 
-#### `getProtocolVersion()`
+### `getProtocolVersion()`
 
 Gets the HTTP protocol version as a string (e.g., "1.0" or "1.1").
 
-#### `withProtocolVersion($version)`
+### `withProtocolVersion($version)`
 
 Returns a new instance of the message with the given HTTP protocol version as a string (e.g., "1.0" or "1.1").
 
-#### `getHeaders()`
+### `getHeaders()`
 
 Returns an array of the headers tied to the message. The array keys are the header names and each value is an array of strings for that header.
 
-#### `hasHeader($name)`
+### `hasHeader($name)`
 
 Makes a case-insensitive comparison to see if the header name given exists in the headers of the message. Returns `true` if found, `false` if not.
 
-#### `getHeader($name)`
+### `getHeader($name)`
 
 Returns an array of strings for the values of the given case-insensitive header. If the header does not exist, it will return an empty array.
 
-#### `getHeaderLine($name)`
+### `getHeaderLine($name)`
 
 Returns a comma-separated string of all the values of the given case-insensitive header. If the header does not exist, it will return an empty string.
 
@@ -82,19 +79,19 @@ $newRequest = $request->withHeader(
 );
 ```
 
-#### `withAddedHeader($name, $value)`
+### `withAddedHeader($name, $value)`
 
 Returns a new instance of the message while adding the given header with the value or values specified. Very similar to `withHeader()`, except it maintains all existing headers.
 
-#### `withoutHeader($name)`
+### `withoutHeader($name)`
 
 Returns a new instance of the message while completely removing the given header.
 
-#### `getBody()`
+### `getBody()`
 
 Gets the body of the message in a [`Psr\Http\Message\StreamInterface`](#streams) format.
 
-#### `withBody($body)`
+### `withBody($body)`
 
 Returns a new instance of the message using the given body. The body must be an instance of [`Psr\Http\Message\StreamInterface`](#streams).
 
@@ -104,28 +101,23 @@ There are two types of requests: `Request` and `ServerRequest`. The `Request` cl
 
 Unless you're building an HTTP client, you'll most likely only use the `ServerRequest`. Both are included because this library is a complete PSR-7 implementation.
 
-- [Request](#request) (outgoing)
-- [ServerRequest](#serverrequest) (incoming)
+* [Request](#request) (outgoing)
+* [ServerRequest](#serverrequest) (incoming)
 
 ### `Request`
 
 The `Request` class is used to build an outgoing, client-side request. Requests are considered immutable; all methods that change the state of the request return a new instance that contains the changes. The original request is always left unchanged.
 
-#### Building a `Request`
+### Building a `Request`
 
-The `RequestFactory` is the most consistent way to build a request, regardless of the framework being used. All PSR-17 implementations share this method signature.
+The static `Request::create` is the most consistent way to build a request.
 
 ```php
 <?php
 
 use Async\Http\Request;
-use Psr\Http\Message\RequestInterface;
 
-$factory = new Request();
-
-/** @var RequestInterface */
-$request = $factory->create('GET', '/some/path?foo=bar');
-
+$request = Request::create('GET', '/some/path?foo=bar');
 ```
 
 Alternatively, you can build the request manually.
@@ -149,42 +141,39 @@ $request = new Request(
     $body,
     $protocolVersion
 );
-
 ```
-
-#### Available Methods
 
 In addition to all of the methods inherited from `MessageAbstract`, the following methods are available:
 
-##### `getRequestTarget()`
+### `getRequestTarget()`
 
 Gets the message's request target as it will be seen for clients. In most cases, this will be the origin-form of the URI, unless a specific value has been provided. For example, if you request "http://example.com/search?q=test" then this will contain "/search?q=test").
 
-##### `withRequestTarget($requestTarget)`
+### `withRequestTarget($requestTarget)`
 
 Returns a new instance with the message's request target, as given.
 
-##### `getMethod()`
+### `getMethod()`
 
 Gets the HTTP method of the request.
 
-##### `withMethod($method)`
+### `withMethod($method)`
 
 Returns a new instance with the message's HTTP method set as given. The method name should be uppercase, however it will not correct the capitalization for you.
 
-##### `getUri()`
+### `getUri()`
 
 Gets the URI of the request as a [`Psr\Http\Message\UriInterface`](#uris).
 
-##### `withUri($uri, $preserveHost = false)`
+### `withUri($uri, $preserveHost = false)`
 
 Returns a new instance with the message's URI set as given. It must be given a [`Psr\Http\Message\UriInterface`](#uris). If preserve host is set to `true`, it will not change the hostname of the request unless there isn't one already set.
 
-### `ServerRequest`
+## `ServerRequest`
 
 The `ServerRequest` class extends `Request` and is used to build an incoming, server-side request. Requests are considered immutable; all methods that change the state of the request return a new instance that contains the changes. The original request is always left unchanged.
 
-#### Building a `ServerRequest`
+### Building a `ServerRequest`
 
 The `ServerRequestFactory` is the most consistent way to build a request, regardless of the framework being used. All PSR-17 implementations share this method signature.
 
@@ -202,35 +191,33 @@ $request = $factory->createServerRequest('GET', '/some/path?foo=bar', $serverPar
 
 ```
 
-#### Available Methods
-
 In addition to all of the methods inherited from `Request`, the following methods are available:
 
-##### `getServerParams()`
+### `getServerParams()`
 
 Gets the server parameters for the request. Typically this is the contents of the `$_SERVER` variable, but doesn't have to be.
 
-##### `getCookieParams()`
+### `getCookieParams()`
 
 Gets the cookie parameters for the request. The return structure matches the format of what `$_COOKIE` provides.
 
-##### `withCookieParams($cookies)`
+### `withCookieParams($cookies)`
 
 Returns a new instance of the request with the updated cookie parameters. The `$cookies` parameter must match the structure that `$_COOKIE` provides.
 
-##### `getQueryParams()`
+### `getQueryParams()`
 
 Gets the query string parameters for the request. Typically this is the contents of the `$_GET` variable, but doesn't have to be. It's also possible for the query parameters to be out of sync with the URI query parameters, as setting one does not automatically set the other.
 
-##### `withQueryParams($query)`
+### `withQueryParams($query)`
 
 Returns a new instance of the request with the updated query parameters. Updating the query parameters will not automatically update the URI of the request.
 
-##### `getUploadedFiles()`
+### `getUploadedFiles()`
 
 Gets an array of normalized file uploads where each node of the array is a [`Psr\Http\Message\UploadedFileInterface`](#uploaded-files).
 
-##### `withUploadedFiles($uploadedFiles)`
+### `withUploadedFiles($uploadedFiles)`
 
 Returns a new instance of the request with the given file tree. Each node of the array must be a [`Psr\Http\Message\UploadedFileInterface`](#uploaded-files).
 
@@ -265,23 +252,23 @@ $newRequest = $request->withUploadedFiles(
 );
 ```
 
-##### `getParsedBody()`
+### `getParsedBody()`
 
 Gets the parameters of the request body. If the request Content-Type is either `application/x-www-form-urlencoded` or `multipart/form-data`, and the request method is `POST`, this method will return an array similar to `$_POST`. For other methods, such as `PUT` or `PATCH`, it will only parse the body if the Content-Type is `application/x-www-form-urlencoded` or `application/json` and then return the resulting array.
 
-##### `withParsedBody($body)`
+### `withParsedBody($body)`
 
 Returns a new instance of the request with the given parsed body. It only accepts `array`, `object`, or `null` values.
 
-##### `getAttributes()`
+### `getAttributes()`
 
 Gets all custom attributes associated with the request. Attributes are application-specific data added to a request and can be anything, such as routing data or authentication flags.
 
-##### `getAttribute($name, $default = null)`
+### `getAttribute($name, $default = null)`
 
 Gets the given attribute for the request. If the attribute is not set, the default value will be returned.
 
-##### `withAttribute($name, $value)`
+### `withAttribute($name, $value)`
 
 Returns a new instance of the request with the given attribute set.
 
@@ -309,7 +296,7 @@ $controller = function ($request) {
 $controller($newRequest);
 ```
 
-##### `withoutAttribute($name)`
+### `withoutAttribute($name)`
 
 Returns a new instance of the request without the given attribute.
 
@@ -317,9 +304,9 @@ Returns a new instance of the request without the given attribute.
 
 There are three response classes available, mainly for convenience, but they all extend `Response`.
 
-- [Response](#response)
-- [JsonResponse](#jsonresponse)
-- [RedirectResponse](#redirectresponse)
+* [Response](#response)
+* [JsonResponse](#jsonresponse)
+* [RedirectResponse](#redirectresponse)
 
 ### `Response`
 
@@ -327,20 +314,19 @@ The `Response` class is used to return data to the client, typically in the form
 
 #### Building a `Response`
 
-The `ResponseFactory` is the most consistent way to build a response, regardless of the framework being used. All PSR-17 implementations share this method signature.
+The static `Response::create` is the most consistent way to build a response.
 
 ```php
 <?php
 
 use Async\Http\Response;
-use Psr\Http\Message\ResponseInterface;
 
 $factory = new Response();
 
 /** @var ResponseInterface */
-$response = $factory->create();
-$response = $factory->create(404);
-$response = $factory->create(404, 'Not Found');
+$response = Response::create();
+$response = Response::create(404);
+$response = Response::create(404, 'Not Found');
 
 ```
 
@@ -355,18 +341,15 @@ use Async\Http\Response;
 $response = new Response('Hello, world!');
 
 // Use a given status code.
-$response = new Response('', 204);
+$response = new Response(204);
 
 // Send custom headers.
 $response = new Response(
-    'Goodbye, world!',
     302,
+    'Goodbye, world!',
     ['Location' => '/bye-bye']
 );
-
 ```
-
-#### Available Methods
 
 In addition to all of the methods inherited from `MessageAbstract`, the following methods are available:
 
@@ -417,7 +400,6 @@ $response = new JsonResponse(
     401,
     ['X-Auth' => 'Failed']
 );
-
 ```
 
 ### `RedirectResponse`
@@ -441,7 +423,6 @@ $redirect = new RedirectResponse(
     302,
     ['X-Message' => 'Bye-bye']
 );
-
 ```
 
 ## File Uploads
@@ -450,27 +431,18 @@ The `UploadedFile` class attempts to fix issues with how PHP structures the `$_F
 
 ### Building an `UploadedFile`
 
-The `UploadedFileFactory` is the most consistent way to build an `UploadedFile`, regardless of the framework being used. All PSR-17 implementations share this method signature.
+The static `UploadedFile::create` is the most consistent way to build an `UploadedFile`.
 
 ```php
 <?php
 
 use Async\Http\UploadedFile;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
 
-$factory = new UploadedFile();
-
-/** @var StreamInterface */
 $stream = ...;
 
-/** @var UploadedFileInterface */
-$file = $factory->create($stream);
-$file = $factory->create($stream, $size, $error, $clientFilename, $clientMediaType);
-
+$file = UploadedFile::create($stream);
+$file = UploadedFile::create($stream, $size, $error, $clientFilename, $clientMediaType);
 ```
-
-### Available Methods
 
 The following methods are available:
 
@@ -504,21 +476,18 @@ Streams provide a standardized way of accessing streamable data, such as request
 
 ### Building a `Stream`
 
-The `StreamFactory` is the most consistent way to build a `Stream`, regardless of the framework being used. All PSR-17 implementations share this method signature.
+The static `Stream::create`, `Stream::createFromFile`, `Stream::createFromResource` is the most consistent way to build a `Stream`.
 
 ```php
 <?php
 
 use Async\Http\Stream;
-use Psr\Http\Message\StreamInterface;
 
-$factory = new Stream();
+$stream = Stream::create('string of data');
+$stream = Stream::createFromFile('/path/to/file', 'r');
 
-/** @var StreamInterface */
-$stream = $factory->create('string of data');
-$stream = $factory->createFromFile('/path/to/file', 'r');
-$stream = $factory->createFromResource($resource);
-
+$resource = fopen('/path/to/file', 'wb+');
+$stream = Stream::createFromResource($resource);
 ```
 
 Alternatively, you can build a `Stream` manually:
@@ -530,10 +499,7 @@ use Async\Http\Stream;
 
 $stream = new Stream('string of data');
 $stream = new Stream($resource);
-
 ```
-
-### Available Methods
 
 The following methods are available:
 
@@ -599,20 +565,15 @@ The `Uri` class makes working with URI values easier, as you can easily get or s
 
 ### Building a `Uri`
 
-The `UriFactory` is the most consistent way to build a `Uri`, regardless of the framework being used. All PSR-17 implementations share this method signature.
+The static `Uri::create` is the most consistent way to build a `Uri`.
 
 ```php
 <?php
 
 use Async\Http\Uri;
-use Psr\Http\Message\UriInterface;
 
-$factory = new Uri();
-
-/** @var UriInterface */
-$uri = $factory->create('/some/path?foo=bar');
-$uri = $factory->create('https://example.com/search?q=test');
-
+$uri = Uri::create('/some/path?foo=bar');
+$uri = Uri::create('https://example.com/search?q=test');
 ```
 
 Alternatively, you can build a `Uri` manually:
@@ -624,10 +585,7 @@ use Async\Http\Uri;
 
 $uri = new Uri('/some/path?foo=bar');
 $uri = new Uri('https://example.com/search?q=test');
-
 ```
-
-### Available Methods
 
 The following methods are available:
 
