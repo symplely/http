@@ -41,7 +41,7 @@ class Stream implements StreamInterface
             $this->stream = $stream;
             \rewind($this->stream);
         } elseif (\is_string($stream)) {
-            $handle = \fopen('php://temp', 'w+');
+            $handle = \fopen('php://temp', 'rb+');
             if ($handle) {
                 $this->stream = $handle;
                 \fwrite($this->stream, $stream);

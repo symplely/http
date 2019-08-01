@@ -103,15 +103,20 @@ class Response extends MessageAbstract implements ResponseInterface
     protected $statusCode;
 
     /**
+     * @param int|string $bodyStatusCode
      * @param StreamInterface|resource|string $body
-     * @param int $statusCode
      * @param array $headers Array of string|string[]
      */
-    public function __construct(int $statusCode = 200, $body = '', array $headers = [])
+    public function __construct($bodyStatusCode = 200, $body = '', array $headers = [])
     {
+        if (!\is_int($bodyStatusCode) && empty($body)) {
+            $body = $bodyStatusCode;
+            $bodyStatusCode = 200;;
+        }
+
         $this->body         = $this->filterBody($body);
         $this->headers      = $this->filterHeaders($headers);
-        $this->statusCode   = $this->filterStatusCode($statusCode);
+        $this->statusCode   = $this->filterStatusCode($bodyStatusCode);
         $this->reasonPhrase = $this->filterReasonPhrase('');
     }
 
