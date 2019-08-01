@@ -1,19 +1,11 @@
 {
   "name": "symplely/http",
-  "description": "PSR-7 and PSR-17 implementation using yield, coroutines, async and await",
-  "keywords": ["psr-7", "psr-17", "http", "message", "factory", "coroutine", "asynchronous"],
+  "description": "PSR-7 implementation using yield, coroutines, async and await",
+  "keywords": ["psr-7", "http", "request", "coroutine", "asynchronous"],
   "license": "MIT",
   "homepage": "https://github.com/symplely/http",
   "type": "library",
   "authors": [
-    {
-      "name": "Vaibhav Pandey",
-      "email": "contact@vaibhavpandey.com"
-    },
-	{
-        "name": "Luke Kingsley",
-        "email": "bizurkur@gmail.com"
-    },
     {
       "name": "Lawrence Stubbs",
       "email": "lstubbs@techno.express"
