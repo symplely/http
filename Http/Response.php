@@ -25,72 +25,78 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
      *
      * @var string[]
      */
-    protected $validStatusCodes = [
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        102 => 'Processing',
-        103 => 'Early Hints',
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        207 => 'Multi-Status',
-        208 => 'Already Reported',
-        226 => 'IM Used',
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        306 => '(Unused)',
-        307 => 'Temporary Redirect',
-        308 => 'Permanent Redirect',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Payload Too Large',
-        414 => 'URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        421 => 'Misdirected Request',
-        422 => 'Unprocessable Entity',
-        423 => 'Locked',
-        424 => 'Failed Dependency',
-		425 => 'Unordered Collection',
-        426 => 'Upgrade Required',
-        428 => 'Precondition Required',
-        429 => 'Too Many Requests',
-        431 => 'Request Header Fields Too Large',
-		444 => 'Connection Closed Without Response',
-        451 => 'Unavailable For Legal Reasons',
-		499 => 'Client Closed Request',
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-        506 => 'Variant Also Negotiates',
-        507 => 'Insufficient Storage',
-        508 => 'Loop Detected',
-        510 => 'Not Extended',
-        511 => 'Network Authentication Required',
-		599 => 'Network Connect Timeout Error',
+    public const REASON_PHRASES = [        
+		//Informational 1xx
+		self::STATUS_CONTINUE                        => 'Continue',
+		self::STATUS_SWITCHING_PROTOCOLS             => 'Switching Protocols',
+		self::STATUS_PROCESSING                      => 'Processing',
+        103                                          => 'Early Hints',
+		//Successful 2xx
+		self::STATUS_OK                              => 'OK',
+		self::STATUS_CREATED                         => 'Created',
+		self::STATUS_ACCEPTED                        => 'Accepted',
+		self::STATUS_NON_AUTHORITATIVE_INFORMATION   => 'Non-Authoritative Information',
+		self::STATUS_NO_CONTENT                      => 'No Content',
+		self::STATUS_RESET_CONTENT                   => 'Reset Content',
+		self::STATUS_PARTIAL_CONTENT                 => 'Partial Content',
+		self::STATUS_MULTI_STATUS                    => 'Multi-Status',
+		self::STATUS_ALREADY_REPORTED                => 'Already Reported',
+		self::STATUS_IM_USED                         => 'IM Used',
+		//Redirection 3xx
+		self::STATUS_MULTIPLE_CHOICES                => 'Multiple Choices',
+		self::STATUS_MOVED_PERMANENTLY               => 'Moved Permanently',
+		self::STATUS_FOUND                           => 'Found',
+		self::STATUS_SEE_OTHER                       => 'See Other',
+		self::STATUS_NOT_MODIFIED                    => 'Not Modified',
+		self::STATUS_USE_PROXY                       => 'Use Proxy',
+		self::STATUS_RESERVED                        => 'Reserved',
+		self::STATUS_TEMPORARY_REDIRECT              => 'Temporary Redirect',
+		self::STATUS_PERMANENT_REDIRECT              => 'Permanent Redirect',
+		//Client Error 4xx
+		self::STATUS_BAD_REQUEST                     => 'Bad Request',
+		self::STATUS_UNAUTHORIZED                    => 'Unauthorized',
+		self::STATUS_PAYMENT_REQUIRED                => 'Payment Required',
+		self::STATUS_FORBIDDEN                       => 'Forbidden',
+		self::STATUS_NOT_FOUND                       => 'Not Found',
+		self::STATUS_METHOD_NOT_ALLOWED              => 'Method Not Allowed',
+		self::STATUS_NOT_ACCEPTABLE                  => 'Not Acceptable',
+		self::STATUS_PROXY_AUTHENTICATION_REQUIRED   => 'Proxy Authentication Required',
+		self::STATUS_REQUEST_TIMEOUT                 => 'Request Timeout',
+		self::STATUS_CONFLICT                        => 'Conflict',
+		self::STATUS_GONE                            => 'Gone',
+		self::STATUS_LENGTH_REQUIRED                 => 'Length Required',
+		self::STATUS_PRECONDITION_FAILED             => 'Precondition Failed',
+		self::STATUS_PAYLOAD_TOO_LARGE               => 'Request Entity Too Large',
+		self::STATUS_URI_TOO_LONG                    => 'Request-URI Too Long',
+		self::STATUS_UNSUPPORTED_MEDIA_TYPE          => 'Unsupported Media Type',
+		self::STATUS_RANGE_NOT_SATISFIABLE           => 'Requested Range Not Satisfiable',
+		self::STATUS_EXPECTATION_FAILED              => 'Expectation Failed',
+		self::STATUS_IM_A_TEAPOT                     => 'I\'m a teapot',
+		self::STATUS_MISDIRECTED_REQUEST             => 'Misdirected Request',
+		self::STATUS_UNPROCESSABLE_ENTITY            => 'Unprocessable Entity',
+		self::STATUS_LOCKED                          => 'Locked',
+		self::STATUS_FAILED_DEPENDENCY               => 'Failed Dependency',
+		425                                          => 'Unordered Collection',
+		self::STATUS_UPGRADE_REQUIRED                => 'Upgrade Required',
+		self::STATUS_PRECONDITION_REQUIRED           => 'Precondition Required',
+		self::STATUS_TOO_MANY_REQUESTS               => 'Too Many Requests',
+		self::STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE => 'Request Header Fields Too Large',
+		444                                          => 'Connection Closed Without Response',
+		self::STATUS_UNAVAILABLE_FOR_LEGAL_REASONS   => 'Unavailable For Legal Reasons',
+		499                                          => 'Client Closed Request',
+		//Server Error 5xx
+		self::STATUS_INTERNAL_SERVER_ERROR           => 'Internal Server Error',
+		self::STATUS_NOT_IMPLEMENTED                 => 'Not Implemented',
+		self::STATUS_BAD_GATEWAY                     => 'Bad Gateway',
+		self::STATUS_SERVICE_UNAVAILABLE             => 'Service Unavailable',
+		self::STATUS_GATEWAY_TIMEOUT                 => 'Gateway Timeout',
+		self::STATUS_VERSION_NOT_SUPPORTED           => 'HTTP Version Not Supported',
+		self::STATUS_VARIANT_ALSO_NEGOTIATES         => 'Variant Also Negotiates',
+		self::STATUS_INSUFFICIENT_STORAGE            => 'Insufficient Storage',
+		self::STATUS_LOOP_DETECTED                   => 'Loop Detected',
+		self::STATUS_NOT_EXTENDED                    => 'Not Extended',
+		self::STATUS_NETWORK_AUTHENTICATION_REQUIRED => 'Network Authentication Required',
+		599                                          => 'Network Connect Timeout Error',
     ];
 
     /**
@@ -112,7 +118,7 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
      * @param StreamInterface|resource|string $body
      * @param array $headers Array of string|string[]
      */
-    public function __construct($bodyStatusCode = 200, $body = '', array $headers = [])
+    public function __construct($bodyStatusCode = self::STATUS_OK, $body = '', array $headers = [])
     {
         if (!\is_int($bodyStatusCode) && empty($body)) {
             $body = $bodyStatusCode;
@@ -167,7 +173,7 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
      *
      * @return ResponseInterface
      */
-    public static function create(int $code = 200, string $reasonPhrase = ''): ResponseInterface
+    public static function create(int $code = self::STATUS_OK, string $reasonPhrase = ''): ResponseInterface
     {
         $response = new self();
         return $response->withStatus($code, $reasonPhrase);
@@ -184,7 +190,7 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
      */
     private function filterStatusCode(int $statusCode): int
     {
-        if (!isset($this->validStatusCodes[$statusCode])) {
+        if (!isset($this::REASON_PHRASES[$statusCode])) {
             throw new \InvalidArgumentException(
                 sprintf('HTTP status code "%s" is invalid.', $statusCode)
             );
@@ -208,9 +214,9 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
         }
 
         if (empty($reasonPhrase)
-            && !empty($this->validStatusCodes[$statusCode])
+            && !empty($this::REASON_PHRASES[$statusCode])
         ) {
-            return $this->validStatusCodes[$statusCode];
+            return $this::REASON_PHRASES[$statusCode];
         }
 
         return $reasonPhrase;
