@@ -5,6 +5,7 @@
 namespace Async\Http;
 
 use Async\Http\MessageAbstract;
+use Fig\Http\Message\RequestMethodInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -13,7 +14,7 @@ use Psr\Http\Message\UriInterface;
  *
  * @package Async\Http
  */
-class Request extends MessageAbstract implements RequestInterface
+class Request extends MessageAbstract implements RequestInterface, RequestMethodInterface
 {
     /**
      * HTTP method being used, e.g. GET, POST, etc.

@@ -43,7 +43,7 @@ class ResponseTest extends TestCase
         $newReason = $clone->getReasonPhrase();
 
         self::assertNotSame($this->fixture, $clone);
-        self::assertEquals(200, $oldCode);
+        self::assertEquals($this->fixture::STATUS_OK, $oldCode);
         self::assertEquals('OK', $oldReason);
         self::assertEquals($code, $newCode);
         self::assertEquals($expected, $newReason);
@@ -86,7 +86,7 @@ class ResponseTest extends TestCase
     {
         $body = uniqid();
 
-        $fixture = new Response(200, $body);
+        $fixture = new Response(Response::STATUS_OK, $body);
 
         self::assertEquals($body, (string) $fixture->getBody());
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Async\Http;
 
 use Async\Http\MessageAbstract;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -13,7 +14,7 @@ use Psr\Http\Message\StreamInterface;
  *
  * @package Async\Http
  */
-class Response extends MessageAbstract implements ResponseInterface
+class Response extends MessageAbstract implements ResponseInterface, StatusCodeInterface
 {
     /**
      * Valid HTTP status codes and reasons.
@@ -70,11 +71,14 @@ class Response extends MessageAbstract implements ResponseInterface
         422 => 'Unprocessable Entity',
         423 => 'Locked',
         424 => 'Failed Dependency',
+		425 => 'Unordered Collection',
         426 => 'Upgrade Required',
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
+		444 => 'Connection Closed Without Response',
         451 => 'Unavailable For Legal Reasons',
+		499 => 'Client Closed Request',
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
         502 => 'Bad Gateway',
@@ -86,6 +90,7 @@ class Response extends MessageAbstract implements ResponseInterface
         508 => 'Loop Detected',
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
+		599 => 'Network Connect Timeout Error',
     ];
 
     /**
@@ -100,7 +105,7 @@ class Response extends MessageAbstract implements ResponseInterface
      *
      * @var int
      */
-    protected $statusCode;
+    protected $statusCode = self::STATUS_OK;
 
     /**
      * @param int|string $bodyStatusCode
@@ -111,7 +116,7 @@ class Response extends MessageAbstract implements ResponseInterface
     {
         if (!\is_int($bodyStatusCode) && empty($body)) {
             $body = $bodyStatusCode;
-            $bodyStatusCode = 200;;
+            $bodyStatusCode = self::STATUS_OK;
         }
 
         $this->body         = $this->filterBody($body);
