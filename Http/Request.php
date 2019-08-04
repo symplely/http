@@ -41,13 +41,14 @@ class Request extends MessageAbstract implements RequestInterface, RequestMethod
      * Request constructor.
      *
      * @param string $method
-     * @param UriInterface $uri
+     * @param UriInterface|string $uri
      */
-    public function __construct($method = 'GET', UriInterface $uri = null)
+    public function __construct($method = 'GET', $uri = null)
     {
         self::assertMethod($method);
         $this->method = $method;
-        $this->uri = $uri;
+
+		$this->uri= !$uri instanceof UriInterface ? new Uri($uri) : $uri;
     }
 
     /**
