@@ -1,7 +1,7 @@
 {
   "name": "symplely/http",
-  "description": "PSR-7 implementation using yield, coroutines, async and await",
-  "keywords": ["psr-7", "http", "request", "coroutine", "asynchronous"],
+  "description": "An simple PSR-7 Request/Response implementation.",
+  "keywords": ["psr-7", "http", "request"],
   "license": "MIT",
   "homepage": "https://github.com/symplely/http",
   "type": "library",
