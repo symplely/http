@@ -1,7 +1,7 @@
 {
   "name": "symplely/http",
   "description": "An simple PSR-7 Request/Response implementation.",
-  "keywords": ["psr-7", "http", "request"],
+  "keywords": ["psr-7", "http", "request", "response"],
   "license": "MIT",
   "homepage": "https://github.com/symplely/http",
   "type": "library",
@@ -23,7 +23,6 @@
   },
   "provide": {
     "psr/http-client-implementation" : "^1.0",
-    "psr/http-factory-implementation": "^1.0",
     "psr/http-message-implementation": "^1.0"
   },
   "require": {
