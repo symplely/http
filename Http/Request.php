@@ -4,6 +4,7 @@
 
 namespace Async\Http;
 
+use Async\Http\Uri;
 use Async\Http\MessageAbstract;
 use Fig\Http\Message\RequestMethodInterface;
 use Psr\Http\Message\RequestInterface;
@@ -48,7 +49,11 @@ class Request extends MessageAbstract implements RequestInterface, RequestMethod
         self::assertMethod($method);
         $this->method = $method;
 
-		$this->uri= !$uri instanceof UriInterface ? new Uri($uri) : $uri;
+        if (\is_string($uri)) {
+		    $this->uri = Uri::create($uri);
+        } else {
+		    $this->uri = $uri instanceof UriInterface ? $uri : null;
+        }
     }
 
     /**
