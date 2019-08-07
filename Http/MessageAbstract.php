@@ -274,7 +274,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     protected function validateHeader(string $header, $values = []): void
     {
-        if (!\preg_match('/^[A-Za-z0-9\x21\x23-\x27\x2a\x2b\x2d\x2e\x5e-\x60\x7c]+$/', $header)) {
+        if (!\preg_match('@^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$@', $header)) {
             throw new \InvalidArgumentException(
                 \sprintf(
                     'Header "%s" contains invalid characters.',
@@ -304,7 +304,9 @@ abstract class MessageAbstract implements MessageInterface
                 );
             }
 
-            if (!\preg_match('/^[\x09\x20-\x7e\x80-\xff]+$/', $value)) {
+            if (\preg_match("~(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))~", $value)
+                || \preg_match('~[^\x09\x0a\x0d\x20-\x7E\x80-\xFE]~', $value)
+            ) {
                 throw new \InvalidArgumentException(
                     \sprintf(
                         'Header "%s" contains invalid value "%s".',
