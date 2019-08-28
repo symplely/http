@@ -247,7 +247,7 @@ class Uri implements UriInterface
      * @return UriInterface
      * @throws \InvalidArgumentException If the given URI cannot be parsed.
      */
-    public function create(string $uri = ''): UriInterface
+    public static function create(string $uri = ''): UriInterface
     {
         $obj = new self();
         if (empty($uri)) {
