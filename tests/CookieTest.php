@@ -106,4 +106,17 @@ class CookieTest extends TestCase
         $this->assertTrue($cookie->isSecure());
         $this->assertTrue($cookie->isHttpOnly());
     }
+
+    public function testParseHeader()
+    {
+        $cookies = Cookie::parseCookieHeader('foo=bar; name=Josh');
+        $this->assertEquals('bar', $cookies['foo']);
+        $this->assertEquals('Josh', $cookies['name']);
+    }
+
+    public function testParseHeaderException()
+    {
+        self::expectException(\InvalidArgumentException::class);
+        Cookie::parseCookieHeader(new \stdClass);
+    }
 }

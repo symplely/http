@@ -67,7 +67,8 @@ class UploadedFile implements UploadedFileInterface
         } else {
             throw new \InvalidArgumentException('Error status must be one of UPLOAD_ERR_* constants');
         }
-        if (UPLOAD_ERR_OK === $error) {
+
+        if (\UPLOAD_ERR_OK === $error) {
             if (\is_string($file)) {
                 $this->file = $file;
             } elseif (\is_resource($file)) {
@@ -80,11 +81,13 @@ class UploadedFile implements UploadedFileInterface
                 );
             }
         }
+
         if (is_int($size)) {
             $this->size = $size;
         } else {
             throw new \InvalidArgumentException('Size of UploadedFile must be an integer');
         }
+
         $this->clientFilename = $clientFilename;
         $this->clientMediaType = $clientMediaType;
     }
@@ -178,5 +181,74 @@ class UploadedFile implements UploadedFileInterface
     public static function create(StreamInterface $file, ?int $size = null, int $error = UPLOAD_ERR_OK, ?string $clientFilename = null, ?string $clientMediaType = null): UploadedFileInterface
     {
         return new self($file, (int)$size, (int)$error, $clientFilename, $clientMediaType);
+    }
+
+    /**
+     * Create a normalized tree of UploadedFile instances from the Environment.
+     *
+     * @internal This method is not part of the PSR-7 standard.
+     *
+     * @param array $globals The global server variables.
+     *
+     * @return array A normalized tree of UploadedFile instances or null if none are provided.
+     */
+    public static function fromGlobals(array $globals): array
+    {
+        if (isset($globals['files']) && \is_array($globals['files'])) {
+            return $globals['files'];
+        }
+
+        if (!empty($_FILES)) {
+            return self::parseUploadedFiles($_FILES);
+        }
+
+        return [];
+    }
+
+    /**
+     * Parse a non-normalized, i.e. $_FILES superglobal, tree of uploaded file data.
+     *
+     * @internal This method is not part of the PSR-7 standard.
+     *
+     * @param array $uploadedFiles The non-normalized tree of uploaded file data.
+     *
+     * @return array A normalized tree of UploadedFile instances.
+     */
+    private static function parseUploadedFiles(array $uploadedFiles): array
+    {
+        $parsed = [];
+        foreach ($uploadedFiles as $field => $uploadedFile) {
+            if (!isset($uploadedFile['error'])) {
+                if (\is_array($uploadedFile)) {
+                    $parsed[$field] = self::parseUploadedFiles($uploadedFile);
+                }
+                continue;
+            }
+
+            $parsed[$field] = [];
+            if (!\is_array($uploadedFile['error'])) {
+                $parsed[$field] = new self(
+                    $uploadedFile['tmp_name'],
+                    isset($uploadedFile['size']) ? $uploadedFile['size'] : null,
+                    $uploadedFile['error'],
+                    isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
+                    isset($uploadedFile['type']) ? $uploadedFile['type'] : null
+                );
+            } else {
+                $subArray = [];
+                foreach ($uploadedFile['error'] as $fileIdx => $error) {
+                    // Normalize sub array and re-parse to move the input's key name up a level
+                    $subArray[$fileIdx]['name'] = $uploadedFile['name'][$fileIdx];
+                    $subArray[$fileIdx]['type'] = $uploadedFile['type'][$fileIdx];
+                    $subArray[$fileIdx]['tmp_name'] = $uploadedFile['tmp_name'][$fileIdx];
+                    $subArray[$fileIdx]['error'] = $uploadedFile['error'][$fileIdx];
+                    $subArray[$fileIdx]['size'] = $uploadedFile['size'][$fileIdx];
+
+                    $parsed[$field] = self::parseUploadedFiles($subArray);
+                }
+            }
+        }
+
+        return $parsed;
     }
 }

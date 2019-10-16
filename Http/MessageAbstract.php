@@ -93,7 +93,7 @@ abstract class MessageAbstract implements MessageInterface
     public function getHeader($name): array
     {
         if (($key = $this->findHeaderKey($name)) !== false) {
-            return $this->headers[$key];
+            return (array) $this->headers[$key];
         }
 
         return [];

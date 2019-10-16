@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Async\Http;
 
 use Async\Http\Request;
+use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -44,6 +46,39 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @var UploadedFileInterface[]
      */
     protected $uploadedFiles = array();
+
+    /**
+     * @param string           $method        The request method
+     * @param UriInterface     $uri           The request URI object
+     * @param HeadersInterface $headers       The request headers collection
+     * @param array            $cookies       The request cookies collection
+     * @param array            $serverParams  The server environment variables
+     * @param StreamInterface  $body          The request body object
+     * @param array            $uploadedFiles The request uploadedFiles collection
+     * @throws InvalidArgumentException on invalid HTTP method
+     */
+    public function __construct(
+        $method = 'GET',
+        UriInterface $uri = null,
+        array $headers = [],
+        array $cookies = [],
+        array $serverParams = [],
+        StreamInterface $body = null,
+        array $uploadedFiles = []
+    ) {
+        $this->method = $method;
+        $this->uri = $uri;
+        $this->headers = $headers;
+        $this->cookieParams = $cookies;
+        $this->serverParams = $serverParams;
+        $this->attributes = [];
+        $this->body = $body;
+        $this->uploadedFiles = $uploadedFiles;
+
+        if (isset($serverParams['SERVER_PROTOCOL'])) {
+            $this->protocolVersion = \str_replace('HTTP/', '', $serverParams['SERVER_PROTOCOL']);
+        }
+    }
 
     /**
      * {@inheritdoc}
