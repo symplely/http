@@ -65,6 +65,9 @@ class MessageAbstractTest extends TestCase
                 ->withoutHeader('Content-Type')
                 ->hasHeader('Content-Type')
         );
+        $this->assertSame($message,
+            $message->withoutHeader('')
+        );
         $this->assertEquals(
             array('text/plain'),
             $message->withHeader('Content-Type', 'text/plain')

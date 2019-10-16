@@ -177,7 +177,7 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $uri = Uri::fromGlobals($_SERVER);
 
-        $headers = self::requestHeaders();
+        $headers = self::requestAllHeaders();
         $cookies = Cookie::parseCookieHeader((isset($headers['Cookie']) ? $headers['Cookie'] : ''));
 
         $body = Stream::createFromFile('php://input', 'r');
@@ -200,43 +200,38 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
         return $request;
     }
 
-    public static function requestHeaders()
+    public static function requestAllHeaders()
     {
         $headers = [];
         if (\function_exists('getallheaders')) {
             $headers = \getallheaders();
         } else {
+            $copy_server = array(
+                'CONTENT_TYPE'   => 'Content-Type',
+                'CONTENT_LENGTH' => 'Content-Length',
+                'CONTENT_MD5'    => 'Content-Md5',
+            );
+
             foreach ($_SERVER as $key => $value) {
-                if (! \is_string($key)) {
-                    continue;
-                }
-        
-                if ($value === '') {
-                    continue;
-                }
-        
-                // Apache prefixes environment variables with REDIRECT_
-                // if they are added by rewrite rules
-                if (\strpos($key, 'REDIRECT_') === 0) {
-                    $key = \substr($key, 9);
-        
-                    // We will not overwrite existing variables with the
-                    // prefixed versions, though
-                    if (\array_key_exists($key, $_SERVER)) {
-                        continue;
+                if (substr($key, 0, 5) === 'HTTP_') {
+                    $key = substr($key, 5);
+                    if (!isset($copy_server[$key]) || !isset($_SERVER[$key])) {
+                        $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', $key))));
+                        $headers[$key] = $value;
                     }
+                } elseif (isset($copy_server[$key])) {
+                    $headers[$copy_server[$key]] = $value;
                 }
-        
-                if (\strpos($key, 'HTTP_') === 0) {
-                    $name = \strtr(strtolower(\substr($key, 5)), '_', '-');
-                    $headers[\ucwords($name, '-')] = $value;
-                    continue;
-                }
-        
-                if (\strpos($key, 'CONTENT_') === 0) {
-                    $name = \strtr(\strtolower($key), '_', '-');
-                    $headers[\ucwords($name, '-')] = $value;
-                    continue;
+            }
+
+            if (!isset($headers['Authorization'])) {
+                if (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+                    $headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+                } elseif (isset($_SERVER['PHP_AUTH_USER'])) {
+                    $basic_pass = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
+                    $headers['Authorization'] = 'Basic ' . base64_encode($_SERVER['PHP_AUTH_USER'] . ':' . $basic_pass);
+                } elseif (isset($_SERVER['PHP_AUTH_DIGEST'])) {
+                    $headers['Authorization'] = $_SERVER['PHP_AUTH_DIGEST'];
                 }
             }
         }
