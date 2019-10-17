@@ -313,7 +313,7 @@ class Cookie implements CookieInterface
      * @param string $cookieHeader A string cookie header value.
      * @return array key/value cookie pairs.
      */
-    function parseCookieHeader($cookieHeader) : array
+    public static function parseCookieHeader($cookieHeader) : array
     {
         if (\is_array($cookieHeader)) {
             $cookieHeader = isset($cookieHeader[0]) ? $cookieHeader[0] : '';

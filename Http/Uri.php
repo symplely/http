@@ -300,7 +300,7 @@ class Uri implements UriInterface
      *
      * @return Uri
      */
-    public function fromGlobals(array $globals): Uri
+    public static function fromGlobals(array $globals): Uri
     {
         // Scheme
         $https = isset($globals['HTTPS']) ? $globals['HTTPS'] : false;
