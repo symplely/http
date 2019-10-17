@@ -59,13 +59,14 @@ class ServerRequestFactoryTest extends TestCase
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             'HTTP_HOST' => 'domain.tld:9090',
             'HTTP_INVALID' => null,
+            'REDIRECT_HOST' => 'http://domain.tld',
             'HTTP_X_REWRITE_URL' => '/some-fancy-url',
             'HTTP_X_ORIGINAL_URL' => '/subdir?test=true#phpunit',
             'QUERY_STRING' => 'test=true',
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI' => 'http://domain.tld:9090/subdir#phpunit',
             'SERVER_PORT' => '9090',
-            'SERVER_PROTOCOL' => 'HTTP/1.0',
+            'SERVER_PROTOCOL' => 'HTTP/1.0'
         ));
         $this->assertInstanceOf(\Psr\Http\Message\ServerRequestInterface::class, $request);
         $this->assertEquals('1.0', $request->getProtocolVersion());
@@ -76,6 +77,15 @@ class ServerRequestFactoryTest extends TestCase
         $this->assertEquals('domain.tld', $request->getUri()->getHost());
         $this->assertEquals(9090, $request->getUri()->getPort());
         $this->assertEquals('http://domain.tld:9090/subdir?test=true#phpunit', (string)$request->getUri());
+    }
+
+    public function testServerRequestFactoryGetUriVersion()
+    {
+        $factory = new ServerRequestFactory();
+        $uri = $factory->getUri(['SERVER_NAME' => 'localhost', 'SERVER_PORT' => '88', 'ORIG_PATH_INFO' => '/subdir/']);
+        $this->assertInstanceOf(\Psr\Http\Message\UriInterface::class, $uri);
+        $request = $factory->createServerRequestFromArray(array('REQUEST_METHOD' => 'GET'));
+        $this->assertEquals('1.1', $request->getProtocolVersion());
     }
 
     public function testCreateFromGlobals()
@@ -253,7 +263,6 @@ class ServerRequestFactoryTest extends TestCase
      */
     public function testCookieHeaderVariations($cookieHeader, array $expectedCookies)
     {
-
         $_SERVER = $this->mock([
             'HTTP_COOKIE' => $cookieHeader
         ]);
