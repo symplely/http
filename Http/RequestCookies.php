@@ -32,10 +32,6 @@ class RequestCookies
 
     public static function modify(RequestInterface $request, string $name, callable $modify) : RequestInterface
     {
-        if (! \is_callable($modify)) {
-            throw new \InvalidArgumentException('$modify must be callable.');
-        }
-
         $cookies = Cookies::fromRequest($request);
         $cookie  = $modify($cookies->has($name)
             ? $cookies->get($name)

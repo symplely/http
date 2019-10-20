@@ -37,10 +37,6 @@ class ResponseCookies
 
     public static function modify(ResponseInterface $response, string $name, callable $modify) : ResponseInterface
     {
-        if (! \is_callable($modify)) {
-            throw new \InvalidArgumentException('$modify must be callable.');
-        }
-
         $setCookies = SetCookies::fromResponse($response);
         $setCookie  = $modify($setCookies->has($name)
             ? $setCookies->get($name)
