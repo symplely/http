@@ -284,6 +284,7 @@ abstract class MessageAbstract implements MessageInterface
         }
 
         if (!\is_string($values) && !\is_array($values)) {
+            // @codeCoverageIgnoreStart
             throw new \InvalidArgumentException(
                 \sprintf(
                     'Values for header "%s" must be a string or array; %s given.',
@@ -291,10 +292,12 @@ abstract class MessageAbstract implements MessageInterface
                     \gettype($values)
                 )
             );
+            // @codeCoverageIgnoreEnd
         }
 
         foreach ((array) $values as $value) {
             if (!\is_string($value)) {
+                // @codeCoverageIgnoreStart
                 throw new \InvalidArgumentException(
                     \sprintf(
                         'Values for header "%s" must contain only strings; %s given.',
@@ -302,6 +305,7 @@ abstract class MessageAbstract implements MessageInterface
                         \gettype($value)
                     )
                 );
+                // @codeCoverageIgnoreEnd
             }
 
             if (\preg_match("~(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))~", $value)
