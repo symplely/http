@@ -1,6 +1,6 @@
 {
   "name": "symplely/http",
-  "description": "An simple PSR-7 Request/Response implementation.",
+  "description": "An simple PSR-7 Request/Response implementation, with Cookie management.",
   "keywords": ["psr-7", "http", "request", "response"],
   "license": "MIT",
   "homepage": "https://github.com/symplely/http",
