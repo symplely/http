@@ -119,4 +119,68 @@ class CookieTest extends TestCase
         self::expectException(\InvalidArgumentException::class);
         Cookie::parseCookieHeader(new \stdClass);
     }
+
+    /**
+     * @dataProvider provideParsesOneFromCookieStringData
+     */
+    public function TestOneFromPair(string $cookieString, string $expectedName, ?string $expectedValue
+    ) : void
+    {
+        $cookie = Cookie::oneFromPair($cookieString);
+
+        $this->assertCookieNameAndValue($cookie, $expectedName, $expectedValue);
+    }
+
+    /**
+     * @dataProvider provideParsesListFromCookieString
+     */
+    public function testListFromString(string $cookieString, array $expectedNameValuePairs) : void
+    {
+        $cookies = Cookie::listFromString($cookieString);
+
+        $this->assertCount(count($expectedNameValuePairs), $cookies);
+
+        for ($i = 0; $i < count($cookies); $i++) {
+            $cookie                              = $cookies[$i];
+            list ($expectedName, $expectedValue) = $expectedNameValuePairs[$i];
+
+            $this->assertCookieNameAndValue($cookie, $expectedName, $expectedValue);
+        }
+    }
+
+    private function assertCookieNameAndValue(Cookie $cookie, string $expectedName, ?string $expectedValue) : void
+    {
+        $this->assertEquals($expectedName, $cookie->getName());
+        $this->assertEquals($expectedValue, $cookie->getValue());
+    }
+
+    public function provideParsesOneFromCookieStringData() : array
+    {
+        return [
+            ['someCookie=something', 'someCookie', 'something'],
+            ['hello%3Dworld=how%22are%27you', 'hello=world', 'how"are\'you'],
+            ['empty=', 'empty', ''],
+        ];
+    }
+
+    public function provideParsesListFromCookieString() : array
+    {
+        return [
+            [
+                'theme=light; sessionToken=abc123',
+                [
+                    ['theme', 'light'],
+                    ['sessionToken', 'abc123'],
+                ],
+            ],
+
+            [
+                'theme=light; sessionToken=abc123;',
+                [
+                    ['theme', 'light'],
+                    ['sessionToken', 'abc123'],
+                ],
+            ],
+        ];
+    }
 }

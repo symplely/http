@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Async\Http;
 
+use Async\Http\CookieInterface;
+
 /**
  * Class Cookie
  *
@@ -54,12 +56,19 @@ class Cookie implements CookieInterface
     protected $value;
 
     /**
+     * @var bool
+     */
+    protected $strict;
+
+    /**
      * Cookie constructor.
      * @param string $name
+     * @param string|null $value
      */
-    public function __construct($name)
+    public function __construct($name, ?string $value = null)
     {
-        $this->name = $name;
+        $this->name  = $name;
+        $this->value = $value;
     }
 
     /**
@@ -266,6 +275,14 @@ class Cookie implements CookieInterface
     }
 
     /**
+     * Create Cookie using `$name` and `$value` pair.
+     */
+    public static function make(string $name, string $value = '') : Cookie
+    {
+        return new self($name, $value);
+    }
+
+    /**
      * @param string $header
      * @return CookieInterface
      */
@@ -340,5 +357,50 @@ class Cookie implements CookieInterface
         }
 
         return $cookies;
+    }
+
+    /**
+     * Create a list of Cookies from a Cookie header value string.
+     */
+    public static function listFromString(string $string) : array
+    {
+        $cookies = self::splitOnDelimiter($string);
+
+        return \array_map(function ($cookiePair) {
+            return self::oneFromPair($cookiePair);
+        }, $cookies);
+    }
+
+    /**
+     * Create one Cookie from a cookie key/value header value string.
+     */
+    public static function oneFromPair(string $string) : Cookie
+    {
+        list($cookieName, $cookieValue) = self::splitPair($string);
+
+        $cookie = new self($cookieName);
+
+        if ($cookieValue !== null) {
+            $cookie = $cookie->withValue($cookieValue);
+        }
+
+        return $cookie;
+    }
+
+    public static function splitOnDelimiter(string $string) : array
+    {
+        $splitAttributes = \preg_split('@\s*[;]\s*@', $string);
+
+        \assert(\is_array($splitAttributes));
+
+        return \array_filter($splitAttributes);
+    }
+
+    public static function splitPair(string $string) : array
+    {
+        $pairParts = \explode('=', $string, 2);
+        $pairParts[1] = $pairParts[1] ?? '';
+
+        return \array_map('urldecode', $pairParts);
     }
 }

@@ -20,6 +20,7 @@ composer require symplely/http
 * [File Uploads](#file-uploads)
 * [Streams](#streams)
 * [URIs](#uris)
+* [Cookies](#cookies)
 
 ## Abstract Messages
 
@@ -315,7 +316,7 @@ The static `Response::create` is the most consistent way to build a response.
 
 use Async\Http\Response;
 
-$factory = new Response();
+$response = new Response();
 
 /** @var ResponseInterface */
 $response = Response::create();
@@ -643,21 +644,253 @@ Returns a new instance with the specified query.
 
 Returns a new instance with the specified fragment.
 
-#### Bonus
+## Cookies
+
+Cookies handles two problems, managing `Cookie` Request headers and managing `Set-Cookie` Response headers. It does this by way of introducing a _Cookies_ class to manage collections of **Cookie** instances and a _SetCookies_ class to manage collections of **SetCookie** instances.
+
+These classes are a merge and rework of repo [dflydev-fig-cookies
+](https://github.com/dflydev/dflydev-fig-cookies).
+
+Instantiating these collections looks like this:
 
 ```php
-<?php
+use Async\Http\Cookies;
+use Async\Http\SetCookies;
 
+// Get a collection representing the cookies in the `Cookie` headers
+// of a PSR-7 Request.
+$cookies = Cookies::fromRequest($request);
+
+// Get a collection representing the cookies in the Set-Cookie headers
+// of a PSR-7 Response
+$setCookies = SetCookies::fromResponse($response);
+```
+
+After modifying these collections in some way, they are rendered into a PSR-7 Request or PSR-7 Response like this:
+
+```php
+// Put the `Cookie` headers and add them to the headers of a
+// PSR-7 Request.
+$request = $cookies->intoHeader($request);
+
+// Put the `Set-Cookie` headers and add them to the headers of a
+// PSR-7 Response.
+$response = $setCookies->intoHeader($response);
+```
+
+For a simple `Cookie` instance, creation.
+
+```php
 use Async\Http\Cookie;
 
-/**
- * @desc Parse Set-Cookie header(s) and create an instance of CookieInterface.
- */
+// Parse Set-Cookie header(s) and create an instance of CookieInterface.
 $cookie = (new Cookie())
     ->create('PHPSESS=1234567890; Domain=domain.tld; Expires=Wed, 21 Oct 2015 07:28:00 GMT; HttpOnly; Max-Age=86400; Path=/admin; Secure');
 
-/**
- * @desc After making changes you can just cast it to a RFC-6265 valid string as show below.
- */
-$header = (string)$cookie;
+// After making changes you can just cast it to a RFC-6265 valid string as show below.
+$header = (string) $cookie;
+```
+
+Like PSR-7 Messages, `Cookie`, `Cookies`, `SetCookie`, and `SetCookies`
+are all represented as immutable value objects and all mutations will
+return new instances of the original with the requested changes.
+
+While this style of design has many benefits it can become fairly
+verbose very quickly. In order to get around that, the following provides
+two facades in an attempt to help simply things and make the whole process
+less verbose.
+
+## Basic Usage
+
+The easiest way to start working with Cookies is by using the
+`RequestCookies` and `ResponseCookies` classes. They are facades to the
+primitive Cookies classes. Their jobs are to make common cookie related
+tasks easier and less verbose than working with the primitive classes directly.
+
+There is overhead on creating `Cookies` and `SetCookies` and rebuilding
+_requests_ and _responses_. Each of these methods will go through this
+process so be wary of using too many of these calls in the same section of
+code. In some cases it may be better to work with the primitive classes
+directly rather than using the facades.
+
+### Request Cookies
+
+Requests include cookie information in the **Cookie** request header. The
+cookies in this header are represented by the `Cookie` class.
+
+```php
+use Async\Http\Cookie;
+
+$cookie = Cookie::make('theme', 'blue');
+```
+
+To easily work with request cookies, use the `RequestCookies` facade.
+
+#### Get a Request Cookie
+
+The `get` method will return a `Cookie` instance. If no cookie by the specified
+name exists, the returned `Cookie` instance will have a `null` value.
+
+The optional third parameter to `get` sets the value that should be used if a
+cookie does not exist.
+
+```php
+use Async\Http\RequestCookies;
+
+$cookie = RequestCookies::get($request, 'theme');
+$cookie = RequestCookies::get($request, 'theme', 'default-theme');
+```
+
+#### Set a Request Cookie
+
+The `set` method will either add a cookie or replace an existing cookie.
+
+The `Cookie` primitive is used as the second argument.
+
+```php
+use Async\Http\RequestCookies;
+
+$request = RequestCookies::set($request, Cookie::make('theme', 'blue'));
+```
+
+#### Modify a Request Cookie
+
+The `modify` method allows for replacing the contents of a cookie based on the
+current cookie with the specified name. The third argument is a `callable` that
+takes a `Cookie` instance as its first argument and is expected to return a
+`Cookie` instance.
+
+If no cookie by the specified name exists, a new `Cookie` instance with a
+`null` value will be passed to the callable.
+
+```php
+use Async\Http\RequestCookies;
+
+$modify = function (Cookie $cookie) {
+    $value = $cookie->getValue();
+
+    // ... inspect current $value and determine if $value should
+    // change or if it can stay the same. in all cases, a cookie
+    // should be returned from this callback...
+    return $cookie->withValue($value);
+}
+
+$request = RequestCookies::modify($request, 'theme', $modify);
+```
+
+#### Remove a Request Cookie
+
+The `remove` method removes a cookie if it exists.
+
+```php
+use Async\Http\RequestCookies;
+
+$request = RequestCookies::remove($request, 'theme');
+```
+
+Note that this does not cause the client to remove the cookie. Take a look at
+`ResponseCookies::expire` to do that.
+
+### Response Cookies
+
+Responses include cookie information in the **Set-Cookie** response header. The
+cookies in these headers are represented by the `SetCookie` class.
+
+```php
+use Async\Http\SetCookie;
+
+$setCookie = SetCookie::create('lu')
+    ->withValue('Rg3vHJZnehYLjVg7qi3bZjzg')
+    ->withExpires('Tue, 15-Jan-2013 21:47:38 GMT')
+    ->withMaxAge(500)
+    ->rememberForever()
+    ->withPath('/')
+    ->withDomain('.example.com')
+    ->withSecure(true)
+    ->withHttpOnly(true)
+;
+```
+
+To easily work with response cookies, use the `ResponseCookies` facade.
+
+#### Get a Response Cookie
+
+The `get` method will return a `SetCookie` instance. If no cookie by the
+specified name exists, the returned `SetCookie` instance will have a `null`
+value.
+
+The optional third parameter to `get` sets the value that should be used if a
+cookie does not exist.
+
+```php
+use Async\Http\ResponseCookies;
+
+$setCookie = ResponseCookies::get($response, 'theme');
+$setCookie = ResponseCookies::get($response, 'theme', 'simple');
+```
+
+#### Set a Response Cookie
+
+The `set` method will either add a cookie or replace an existing cookie.
+
+The `SetCookie` primitive is used as the second argument.
+
+```php
+use Async\Http\ResponseCookies;
+
+$response = ResponseCookies::set($response, SetCookie::create('token')
+    ->withValue('a9s87dfz978a9')
+    ->withDomain('example.com')
+    ->withPath('/firewall')
+);
+```
+
+#### Modify a Response Cookie
+
+The `modify` method allows for replacing the contents of a cookie based on the
+current cookie with the specified name. The third argument is a `callable` that
+takes a `SetCookie` instance as its first argument and is expected to return a
+`SetCookie` instance.
+
+If no cookie by the specified name exists, a new `SetCookie` instance with a
+`null` value will be passed to the callable.
+
+```php
+use Async\Http\ResponseCookies;
+
+$modify = function (SetCookie $setCookie) {
+    $value = $setCookie->getValue();
+
+    // ... inspect current $value and determine if $value should
+    // change or if it can stay the same. in all cases, a cookie
+    // should be returned from this callback...
+
+    return $setCookie
+        ->withValue($newValue)
+        ->withExpires($newExpires)
+    ;
+}
+
+$response = ResponseCookies::modify($response, 'theme', $modify);
+```
+
+#### Remove a Response Cookie
+
+The `remove` method removes a cookie from the response if it exists.
+
+```php
+use Async\Http\ResponseCookies;
+
+$response = ResponseCookies::remove($response, 'theme');
+```
+
+#### Expire a Response Cookie
+
+The `expire` method sets a cookie with an expiry date in the far past. This
+causes the client to remove the cookie.
+
+```php
+use Async\Http\ResponseCookies;
+
+$response = ResponseCookies::expire($response, 'session_cookie');
 ```

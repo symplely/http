@@ -25,7 +25,7 @@ class Response extends MessageAbstract implements ResponseInterface, StatusCodeI
      *
      * @var string[]
      */
-    public const REASON_PHRASES = [        
+    public const REASON_PHRASES = [
 		//Informational 1xx
 		self::STATUS_CONTINUE                        => 'Continue',
 		self::STATUS_SWITCHING_PROTOCOLS             => 'Switching Protocols',
