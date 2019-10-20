@@ -14,8 +14,8 @@ class SetCookieTest extends TestCase
     {
         $setCookie = SetCookie::fromString($cookieString);
 
-        self::assertEquals($expectedSetCookie, $setCookie);
-        self::assertEquals($cookieString, (string) $setCookie);
+        $this->assertEquals($expectedSetCookie, $setCookie);
+        $this->assertEquals($cookieString, (string) $setCookie);
     }
 
     public function provideParsesFromSetCookieStringData() : array
@@ -110,6 +110,30 @@ class SetCookieTest extends TestCase
                          ->withSecure(true)
                          ->withHttpOnly(true),
             ],
+            [
+                'lu=Rg3vHJZnehYLjVg7qi3bZjzg; Domain=.example.com; Path=/; Expires=Tue, 15 Jan 2013 21:47:38 GMT; Max-Age=500; Secure; HttpOnly; SameSite=Strict',
+                SetCookie::create('lu')
+                         ->withValue('Rg3vHJZnehYLjVg7qi3bZjzg')
+                         ->withExpires(new \DateTime('Tue, 15-Jan-2013 21:47:38 GMT'))
+                         ->withMaxAge(500)
+                         ->withPath('/')
+                         ->withDomain('.example.com')
+                         ->withSecure(true)
+                         ->withHttpOnly(true)
+                         ->withSameSite('strict'),
+            ],
+            [
+                'lu=Rg3vHJZnehYLjVg7qi3bZjzg; Domain=.example.com; Path=/; Expires=Tue, 15 Jan 2013 21:47:38 GMT; Max-Age=500; Secure; HttpOnly; SameSite=Lax',
+                SetCookie::create('lu')
+                         ->withValue('Rg3vHJZnehYLjVg7qi3bZjzg')
+                         ->withExpires(new \DateTime('Tue, 15-Jan-2013 21:47:38 GMT'))
+                         ->withMaxAge(500)
+                         ->withPath('/')
+                         ->withDomain('.example.com')
+                         ->withSecure(true)
+                         ->withHttpOnly(true)
+                         ->withSameSite('lax'),
+            ],
         ];
     }
 
@@ -117,18 +141,38 @@ class SetCookieTest extends TestCase
     {
         $setCookie = SetCookie::createExpired('expire_immediately');
 
-        self::assertLessThan(\time(), $setCookie->getExpires());
+        $this->assertLessThan(\time(), $setCookie->getExpires());
     }
 
-    public function TestLongLivingCookies() : void
+    public function testLongLivingCookies() : void
     {
         $setCookie = SetCookie::createRememberedForever('remember_forever');
 
         $fourYearsFromNow = (new \DateTime('+4 years'))->getTimestamp();
-        self::assertGreaterThan($fourYearsFromNow, $setCookie->getExpires());
+        $this->assertGreaterThan($fourYearsFromNow, $setCookie->getExpires());
     }
 
-    public function TestInvalid() : void
+    public function testSameSite() : void
+    {
+        $setCookie = SetCookie::create('foo', 'bar');
+
+        $this->assertNull($setCookie->getSameSite());
+        $this->assertSame('foo=bar', $setCookie->__toString());
+
+        $setCookie = $setCookie->withSameSite('strict');
+
+        $this->assertEquals('Strict', $setCookie->getSameSite());
+        $this->assertSame('foo=bar; SameSite=Strict', $setCookie->__toString());
+
+        $setCookie = $setCookie->withoutSameSite();
+        $this->assertNull($setCookie->getSameSite());
+        $this->assertSame('foo=bar', $setCookie->__toString());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $setCookie = $setCookie->withSameSite('foo');
+    }
+
+    public function testInvalid() : void
     {
         $setCookie = SetCookie::create('foo', 'bar');
 

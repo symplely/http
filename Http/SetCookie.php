@@ -24,6 +24,8 @@ class SetCookie
     private $secure = false;
     /** @var bool */
     private $httpOnly = false;
+    /** @var string|null */
+    private $sameSite = null;
 
     private function __construct(string $name, ?string $value = null)
     {
@@ -69,6 +71,11 @@ class SetCookie
     public function getHttpOnly() : bool
     {
         return $this->httpOnly;
+    }
+
+    public function getSameSite() : ?string
+    {
+        return $this->sameSite;
     }
 
     public function withValue(?string $value = null) : self
@@ -169,6 +176,39 @@ class SetCookie
         return $clone;
     }
 
+    /**
+     * @throws \InvalidArgumentException If the given SameSite string is neither strict nor lax.
+     */
+    public function withSameSite(string $sameSite = 'lax') : self
+    {
+        $clone = clone($this);
+
+        $lowerCaseSite = \strtolower($sameSite);
+
+        if ($lowerCaseSite === 'strict') {
+            $strict = true;
+        } elseif ($lowerCaseSite === 'lax') {
+            $strict = false;
+        } else {
+            throw new \InvalidArgumentException(\sprintf(
+                'Expected modifier value to be either "strict" or "lax", "%s" given', $sameSite
+            ));
+        }
+
+        $clone->sameSite = ($strict) ? 'Strict' : 'Lax';
+
+        return $clone;
+    }
+
+    public function withoutSameSite() : self
+    {
+        $clone = clone($this);
+
+        $clone->sameSite = null;
+
+        return $clone;
+    }
+
     public function __toString() : string
     {
         $cookieStringParts = [
@@ -181,6 +221,7 @@ class SetCookie
         $cookieStringParts = $this->appendFormattedMaxAgePartIfSet($cookieStringParts);
         $cookieStringParts = $this->appendFormattedSecurePartIfSet($cookieStringParts);
         $cookieStringParts = $this->appendFormattedHttpOnlyPartIfSet($cookieStringParts);
+        $cookieStringParts = $this->appendFormattedSameSitePartIfSet($cookieStringParts);
 
         return \implode('; ', $cookieStringParts);
     }
@@ -248,6 +289,9 @@ class SetCookie
                 case 'httponly':
                     $setCookie = $setCookie->withHttpOnly(true);
                     break;
+                case 'samesite':
+                    $setCookie = $setCookie->withSameSite($attributeValue);
+                    break;
             }
         }
 
@@ -304,6 +348,17 @@ class SetCookie
         if ($this->httpOnly) {
             $cookieStringParts[] = 'HttpOnly';
         }
+
+        return $cookieStringParts;
+    }
+
+    private function appendFormattedSameSitePartIfSet(array $cookieStringParts) : array
+    {
+        if ($this->sameSite === null) {
+            return $cookieStringParts;
+        }
+
+        $cookieStringParts[] = \sprintf('SameSite=%s', $this->sameSite);
 
         return $cookieStringParts;
     }
