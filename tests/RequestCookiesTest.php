@@ -10,25 +10,31 @@ use PHPUnit\Framework\TestCase;
 
 class RequestCookiesTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_gets_cookies() : void
+    public function testGet() : void
     {
         $request = (new Request())
             ->withHeader(Cookies::COOKIE_HEADER, 'theme=light; sessionToken=RAPELCGRQ; hello=world')
         ;
 
-        self::assertEquals(
+        $this->assertEquals(
             'RAPELCGRQ',
             RequestCookies::get($request, 'sessionToken')->getValue()
         );
     }
 
-    /**
-     * @test
-     */
-    public function it_sets_cookies() : void
+    public function testGetNull() : void
+    {
+        $request = (new Request())
+            ->withHeader(Cookies::COOKIE_HEADER, 'theme=light; hello=world')
+        ;
+
+        $this->assertEquals(
+            '',
+            RequestCookies::get($request, 'session', '')->getValue()
+        );
+    }
+
+    public function testSet() : void
     {
         $request = (new Request())
             ->withHeader(Cookies::COOKIE_HEADER, 'theme=light; sessionToken=RAPELCGRQ; hello=world')
@@ -36,16 +42,13 @@ class RequestCookiesTest extends TestCase
 
         $request = RequestCookies::set($request, Cookie::make('hello', 'WORLD!'));
 
-        self::assertEquals(
+        $this->assertEquals(
             'theme=light; sessionToken=RAPELCGRQ; hello=WORLD%21',
             $request->getHeaderLine('Cookie')
         );
     }
 
-    /**
-     * @test
-     */
-    public function it_modifies_cookies() : void
+    public function testModify() : void
     {
         $request = (new Request())
             ->withHeader(Cookies::COOKIE_HEADER, 'theme=light; sessionToken=RAPELCGRQ; hello=world')
@@ -55,16 +58,13 @@ class RequestCookiesTest extends TestCase
             return $cookie->withValue(strtoupper($cookie->getName()));
         });
 
-        self::assertEquals(
+        $this->assertEquals(
             'theme=light; sessionToken=RAPELCGRQ; hello=HELLO',
             $request->getHeaderLine('Cookie')
         );
     }
 
-    /**
-     * @test
-     */
-    public function it_removes_cookies() : void
+    public function testRemove() : void
     {
         $request = (new Request())
             ->withHeader(Cookies::COOKIE_HEADER, 'theme=light; sessionToken=RAPELCGRQ; hello=world')
@@ -72,7 +72,7 @@ class RequestCookiesTest extends TestCase
 
         $request = RequestCookies::remove($request, 'sessionToken');
 
-        self::assertEquals(
+        $this->assertEquals(
             'theme=light; hello=world',
             $request->getHeaderLine('Cookie')
         );
