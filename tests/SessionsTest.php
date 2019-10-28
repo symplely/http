@@ -26,6 +26,10 @@ class SessionsTest extends TestCase
     protected function setUp(): void
     {
         \session_write_close();
+        \ini_set('session.use_trans_sid', '0');
+        \ini_set('session.use_cookies', '0');
+        \ini_set('session.use_only_cookies', '1');
+        \ini_set('session.cache_limiter', '');
         $this->storage = new Sessions();
         $this->time = \time();
     }
