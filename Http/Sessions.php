@@ -173,8 +173,8 @@ class Sessions implements SessionsInterface
 
     public function start($id = '')
     {
-        if (!empty($id))
-            \session_id($id);
+        if (!empty($id) && (\session_status() == \PHP_SESSION_NONE))
+            @\session_id($id);
 
         if (\session_status() == \PHP_SESSION_NONE) {
             @\session_start([
