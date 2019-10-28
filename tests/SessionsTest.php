@@ -25,6 +25,7 @@ class SessionsTest extends TestCase
 
     protected function setUp(): void
     {
+        \session_write_close();
         $this->storage = new Sessions();
         $this->time = \time();
     }
