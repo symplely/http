@@ -2,6 +2,23 @@
 
 namespace Async\Tests;
 
+\session_set_cookie_params(
+    1,
+    '/foo/bar',
+    '.example.com',
+    true,
+    true
+);
+
+@\session_start([
+    'auto_start' => false,
+    'use_trans_sid' => false,
+    'use_cookies' => false,
+    'use_only_cookies' => true,
+    'cache_limiter' => ''
+]);
+@\session_write_close();
+
 use RuntimeException;
 use Async\Http\Response;
 use Async\Http\Sessions;
@@ -10,18 +27,6 @@ use Async\Http\ServerRequestFactory;
 use Async\Http\SessionsInterface;
 use PHPUnit\Framework\TestCase;
 
-session_set_cookie_params(
-    1,
-    '/foo/bar',
-    '.example.com',
-    true,
-    true
-);
-
-\ini_set('session.use_trans_sid', '0');
-\ini_set('session.use_cookies', '0');
-\ini_set('session.use_only_cookies', '1');
-\ini_set('session.cache_limiter', '');
 
 class SessionsTest extends TestCase
 {
@@ -262,9 +267,10 @@ class SessionsTest extends TestCase
 
         $response = new Response();
 
-
+        $assert = $this;
         $handler = $this->storage;
-        $next = function ($request, $response) use ($handler) {
+        $next = function ($request, $response) use ($handler, $assert) {
+            $assert::assertInstanceOf(Sessions::class, Sessions::getSession($request));
             $handler->start();
             return $response;
         };
@@ -322,9 +328,8 @@ class SessionsTest extends TestCase
         $regeneratedId = '';
         $handler = new Sessions($sessionId);
         $next = function ($request, $response) use ($handler, &$regeneratedId) {
-            $handler->start();
-            \session_regenerate_id();
-            $regeneratedId = \session_id();
+            $regeneratedId = Sessions::generateToken();
+            $handler->start($regeneratedId);
             return $response;
         };
 

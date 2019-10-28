@@ -79,7 +79,9 @@ class Sessions implements SessionsInterface
             if (isset($_COOKIE[$name])) {
                 $id = $_COOKIE[$name];
             } elseif (isset($_GET[$name])) {
+                // @codeCoverageIgnoreStart
                 $id = $_GET[$name];
+                // @codeCoverageIgnoreEnd
             }
         }
 
@@ -171,10 +173,11 @@ class Sessions implements SessionsInterface
 
     public function start($id = '')
     {
-        \session_id($id);
+        if (!empty($id))
+            \session_id($id);
 
-        if (\session_status() !== \PHP_SESSION_ACTIVE) {
-            \session_start([
+        if (\session_status() == \PHP_SESSION_NONE) {
+            @\session_start([
                 'use_trans_sid' => false,
                 'use_cookies' => false,
                 'use_only_cookies' => true,
@@ -454,8 +457,10 @@ class Sessions implements SessionsInterface
                 return $this->cacheLimiterPrivate($response);
             case 'nocache':
                 return $this->cacheLimiterNocache($response);
-            default:
-                return $response;
+            default:            
+			    // @codeCoverageIgnoreStart
+                return $response;                
+			    // @codeCoverageIgnoreEnd
         }
     }
 
