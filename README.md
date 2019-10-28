@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/symplely/http.svg?branch=master)](https://travis-ci.org/symplely/http)[![Build status](https://ci.appveyor.com/api/projects/status/o86w2h4990x7ehk7/branch/master?svg=true)](https://ci.appveyor.com/project/techno-express/http/branch/master)[![codecov](https://codecov.io/gh/symplely/http/branch/master/graph/badge.svg)](https://codecov.io/gh/symplely/http)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e18e2135abaf49f2b0fd9bf8d29c519d)](https://www.codacy.com/app/techno-express/http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=symplely/http&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/eb6c23530d8c9f864f16/maintainability)](https://codeclimate.com/github/symplely/http/maintainability)
 
-An complete [PSR-7](https://www.php-fig.org/psr/psr-7/) *Request*/*Response* implementation, with *Cookie* management.
+An complete [PSR-7](https://www.php-fig.org/psr/psr-7/) *Request*/*Response* implementation, with *Cookie* management, and *Session* management/middleware.
 
 ## Installation
 
@@ -21,6 +21,7 @@ composer require symplely/http
 * [Streams](#streams)
 * [URIs](#uris)
 * [Cookies](#cookies)
+* [Sessions](#sessions)
 
 ## Abstract Messages
 
@@ -893,4 +894,93 @@ causes the client to remove the cookie.
 use Async\Http\ResponseCookies;
 
 $response = ResponseCookies::expire($response, 'session_cookie');
+```
+
+## Sessions
+
+Normally, **PHP** will send out headers for you automatically when you call `session_start()`. However, this means the headers are not being sent as part of the PSR-7 response object, and are thus outside your control. `Sessions` puts them back under your control by placing the relevant headers in the PSR-7 response.
+
+This manager provides a nice OOP API to access session related actions:
+
+`$session = new \Async\Http\Sessions($id, $cacheLimiter, $cacheExpire);`
+
+When instantiating, you can pass a [cache limiter](http://php.net/session_cache_limiter) value as the second constructor parameter. The allowed values are 'nocache', 'public', 'private_no_cache', or 'private'. If you want no cache limiter header at all, pass an empty string ''. The default is 'nocache'.
+
+You can also pass a [cache expire](http://php.net/session_cache_expire) value, in minutes, as the fourth constructor parameter. The default is 180 minutes.
+
+* `Sessions::getSession($serverRequest)` get session instance from request
+* `Sessions::start($id)` restart the session with id
+* `Sessions::toArray()` retrieve all of the session data
+* `Sessions::getId()` session identifier retrieval
+* `Sessions::regenerate()` cryptographically secure session identifier regeneration
+* `Sessions::has($item)` verify a variable is saved in session
+* `Sessions::set($item, $val)` save a variable into session
+* `Sessions::get($item, $default)` get a variable from session
+* `Sessions::unset($item)` remove a variable from session
+* `Sessions::clear()` remove all session variables
+* `Sessions::close()` close session saving its contents, will also auto update $_SESSION on script shutdown, or __destruct.
+* `Sessions::destroy()` destroy session and all its contents
+
+___Session Middleware___
+
+The same instance also comes with a middleware handler which you can use to automatically initialize session, and write session cookie to response.
+
+```php
+$session = new Sessions();
+
+/**
+ * Session is started, populated with default parameters and the response has session cookie header.
+ *
+ * @param ServerRequestInterface $request
+ * @param ResponseInterface $response
+ * @param RequestHandlerInterface|callable|null $next
+ *
+ * The callable should have something similar to this signature:
+ * function (ServerRequestInterface $request, ResponseInterface $response) : Response {
+ *  // your code
+ * }
+ */
+$response = $session($request, $response, $next);
+```
+
+> **Never** make use of PHP built-in `session_*` functions (Session object would end up not being in sync) or `$_SESSION` global variable (changes will be ignored and overridden). **Use Sessions object API instead**
+
+`Sessions` implements `IteratorAggregate`, `ArrayAccess`, `Countable`
+So, it will look very much like `$_SESSION`.
+Just replace the `$_SESSION` occurrences in your app with instance of the object.
+
+### Write to session
+
+```php
+$session->abcd = 'efgh';
+//or
+$session['abcd'] = 'efgh';
+//or
+$session->set('abcd', 'efgh');
+```
+
+### Read from session
+
+```php
+$abcd =  $session->abc;
+//or
+$abcd = $session['abcd'];
+//or
+$abcd = $session->get('abcd');
+```
+
+### Remove from session
+
+```php
+unset($session->abc);
+//or
+unset($session['abcd']);
+//or
+$session->unset('abcd');
+```
+
+### Clear session data
+
+```php
+$session->clear();
 ```
