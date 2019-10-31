@@ -84,7 +84,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function hasHeader($name): bool
     {
-		return ($this->findHeaderKey($name) !== false);
+        return ($this->findHeaderKey($name) !== false);
     }
 
     /**
@@ -194,9 +194,9 @@ abstract class MessageAbstract implements MessageInterface
      */
     protected function findHeaderKey($name)
     {
-        foreach($this->headers as $key => $value) {
+        foreach ($this->headers as $key => $value) {
             if (\strtolower($name) === \strtolower($key)) {
-				return $key;
+                return $key;
             }
         }
 
@@ -308,7 +308,8 @@ abstract class MessageAbstract implements MessageInterface
                 // @codeCoverageIgnoreEnd
             }
 
-            if (\preg_match("~(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))~", $value)
+            if (
+                \preg_match("~(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))~", $value)
                 || \preg_match('~[^\x09\x0a\x0d\x20-\x7E\x80-\xFE]~', $value)
             ) {
                 throw new \InvalidArgumentException(

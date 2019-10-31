@@ -180,7 +180,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public static function create(StreamInterface $file, ?int $size = null, int $error = UPLOAD_ERR_OK, ?string $clientFilename = null, ?string $clientMediaType = null): UploadedFileInterface
     {
-        return new self($file, (int)$size, (int)$error, $clientFilename, $clientMediaType);
+        return new self($file, (int) $size, (int) $error, $clientFilename, $clientMediaType);
     }
 
     /**

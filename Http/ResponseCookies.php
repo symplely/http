@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class ResponseCookies
 {
-    public static function get(ResponseInterface $response, string $name, ?string $value = null) : SetCookie
+    public static function get(ResponseInterface $response, string $name, ?string $value = null): SetCookie
     {
         $setCookies = SetCookies::fromResponse($response);
         $cookie     = $setCookies->get($name);
@@ -22,20 +22,19 @@ class ResponseCookies
         return SetCookie::create($name, $value);
     }
 
-    public static function set(ResponseInterface $response, SetCookie $setCookie) : ResponseInterface
+    public static function set(ResponseInterface $response, SetCookie $setCookie): ResponseInterface
     {
         return SetCookies::fromResponse($response)
             ->with($setCookie)
-            ->intoHeader($response)
-        ;
+            ->intoHeader($response);
     }
 
-    public static function expire(ResponseInterface $response, string $cookieName) : ResponseInterface
+    public static function expire(ResponseInterface $response, string $cookieName): ResponseInterface
     {
         return self::set($response, SetCookie::createExpired($cookieName));
     }
 
-    public static function modify(ResponseInterface $response, string $name, callable $modify) : ResponseInterface
+    public static function modify(ResponseInterface $response, string $name, callable $modify): ResponseInterface
     {
         $setCookies = SetCookies::fromResponse($response);
         $setCookie  = $modify($setCookies->has($name)
@@ -44,15 +43,13 @@ class ResponseCookies
 
         return $setCookies
             ->with($setCookie)
-            ->intoHeader($response)
-        ;
+            ->intoHeader($response);
     }
 
-    public static function remove(ResponseInterface $response, string $name) : ResponseInterface
+    public static function remove(ResponseInterface $response, string $name): ResponseInterface
     {
         return SetCookies::fromResponse($response)
             ->without($name)
-            ->intoHeader($response)
-        ;
+            ->intoHeader($response);
     }
 }

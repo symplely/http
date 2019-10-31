@@ -29,7 +29,7 @@ class ResponseSender implements ResponseSenderInterface
             \ob_end_flush();
         }
         if (!$response->hasHeader('Content-Length') && \is_int($size = $response->getBody()->getSize())) {
-            $response = $response->withHeader('Content-Length', (string)$size);
+            $response = $response->withHeader('Content-Length', (string) $size);
         }
         $this->sendStatusLine($response);
         $this->sendHeaders($response);

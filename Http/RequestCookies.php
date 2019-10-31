@@ -10,7 +10,7 @@ use Psr\Http\Message\RequestInterface;
 
 class RequestCookies
 {
-    public static function get(RequestInterface $request, string $name, ?string $value = null) : Cookie
+    public static function get(RequestInterface $request, string $name, ?string $value = null): Cookie
     {
         $cookies = Cookies::fromRequest($request);
         $cookie  = $cookies->get($name);
@@ -22,15 +22,14 @@ class RequestCookies
         return Cookie::make($name, $value);
     }
 
-    public static function set(RequestInterface $request, Cookie $cookie) : RequestInterface
+    public static function set(RequestInterface $request, Cookie $cookie): RequestInterface
     {
         return Cookies::fromRequest($request)
             ->with($cookie)
-            ->intoHeader($request)
-        ;
+            ->intoHeader($request);
     }
 
-    public static function modify(RequestInterface $request, string $name, callable $modify) : RequestInterface
+    public static function modify(RequestInterface $request, string $name, callable $modify): RequestInterface
     {
         $cookies = Cookies::fromRequest($request);
         $cookie  = $modify($cookies->has($name)
@@ -39,15 +38,13 @@ class RequestCookies
 
         return $cookies
             ->with($cookie)
-            ->intoHeader($request)
-        ;
+            ->intoHeader($request);
     }
 
-    public static function remove(RequestInterface $request, string $name) : RequestInterface
+    public static function remove(RequestInterface $request, string $name): RequestInterface
     {
         return Cookies::fromRequest($request)
             ->without($name)
-            ->intoHeader($request)
-        ;
+            ->intoHeader($request);
     }
 }

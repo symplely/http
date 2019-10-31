@@ -170,7 +170,7 @@ class Uri implements UriInterface
     public function withPort($port)
     {
         if ($port !== null) {
-            MessageValidations::assertTcpUdpPort($port = (int)$port);
+            MessageValidations::assertTcpUdpPort($port = (int) $port);
         }
         $clone = clone $this;
         $clone->port = $port;

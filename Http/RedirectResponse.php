@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Async\Http;
 
 use Async\Http\Response;
@@ -16,8 +18,8 @@ class RedirectResponse extends Response
     public function __construct(int $statusCode = 302, string $uri, array $headers = [])
     {
         $body = '<html><body><p>This page has been moved <a href="'
-            .htmlspecialchars($uri, ENT_QUOTES, 'UTF-8')
-            .'">here</a>.</p></body></html>';
+            . \htmlspecialchars($uri, ENT_QUOTES, 'UTF-8')
+            . '">here</a>.</p></body></html>';
 
         parent::__construct($statusCode, $body, $headers);
 

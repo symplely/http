@@ -116,7 +116,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         if ($type) {
             list($type) = \explode(';', $type, 2);
         }
-        $body = (string)$this->getBody();
+        $body = (string) $this->getBody();
         switch ($type) {
             case 'application/json':
                 $this->parsedBody = \json_decode($body, true);

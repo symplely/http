@@ -22,8 +22,7 @@ class MessageValidations
      * @codeCoverageIgnore
      */
     private function __construct()
-    {
-    }
+    { }
 
     /**
      * @param string $path

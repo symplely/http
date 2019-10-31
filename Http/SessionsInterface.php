@@ -20,9 +20,7 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      * saved, but instead the current `time()`.
      *
      * @param ServerRequestInterface $request The HTTP request.
-     *
      * @param ResponseInterface $response The HTTP response.
-     *
      * @param RequestHandlerInterface|callable|null $middleware The next middleware to execute.
      *
      * @return ResponseInterface
@@ -65,7 +63,7 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @return array
      */
-    public function toArray() : array;
+    public function toArray(): array;
 
     /**
      * Retrieve a value from the session.
@@ -82,7 +80,7 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      * @param mixed  $value
      * @return void
      */
-    public function set(string $name, $value) : void;
+    public function set(string $name, $value): void;
 
     /**
      * Removes an item from the session.
@@ -90,14 +88,14 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      * @param string $name
      * @return void
      */
-    public function unset(string $name) : void;
+    public function unset(string $name): void;
 
     /**
      * Clears/Remove all of the items from the session.
      *
      * @return void
      */
-    public function clear() : void;
+    public function clear(): void;
 
     /**
      * Checks whether a given item exists in the session
@@ -105,7 +103,7 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      * @param string $key
      * @return bool
      */
-    public function has(string $name) : bool;
+    public function has(string $name): bool;
 
     /**
      * Generate a new session identifier for the session.
@@ -121,9 +119,9 @@ interface SessionsInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function getId(): string;
 
-    public function generateTokenFor(string $keyName = '__CSRF') : string;
+    public function generateTokenFor(string $keyName = '__CSRF'): string;
 
-    public function validateTokenFor(string $token, string $csrfKey = '__CSRF') : bool;
+    public function validateTokenFor(string $token, string $csrfKey = '__CSRF'): bool;
 
-    public static function generateToken() : string;
+    public static function generateToken(): string;
 }

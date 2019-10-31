@@ -15,7 +15,7 @@ class Stream implements StreamInterface
 {
     /**
      * @var string[]
-    */
+     */
     private const WRITABLE_MODES = ['r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+'];
 
     /**

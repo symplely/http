@@ -1,6 +1,6 @@
 <?php
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Async\Http;
 
@@ -50,9 +50,9 @@ class Request extends MessageAbstract implements RequestInterface, RequestMethod
         $this->method = $method;
 
         if (\is_string($uri)) {
-		    $this->uri = Uri::create($uri);
+            $this->uri = Uri::create($uri);
         } else {
-		    $this->uri = $uri instanceof UriInterface ? $uri : null;
+            $this->uri = $uri instanceof UriInterface ? $uri : null;
         }
     }
 

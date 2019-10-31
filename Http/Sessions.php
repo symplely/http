@@ -90,28 +90,28 @@ class Sessions implements SessionsInterface
         $this->data = $_SESSION;
 
         if (\ini_get('session.use_trans_sid') != false) {
-			// @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             $message = "The .ini setting 'session.use_trans_sid' must be false.";
             throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
         }
 
         if (\ini_get('session.use_cookies') != false) {
-			// @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             $message = "The .ini setting 'session.use_cookies' must be false.";
             throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
         }
 
         if (\ini_get('session.use_only_cookies') != true) {
-			// @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             $message = "The .ini setting 'session.use_only_cookies' must be true.";
             throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
         }
 
         if (\ini_get('session.cache_limiter') !== '') {
-			// @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             $message = "The .ini setting 'session.cache_limiter' must be an empty string.";
             throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
@@ -127,7 +127,7 @@ class Sessions implements SessionsInterface
         $oldId = '';
         $oldName = \session_name();
         $cookies = $request->getCookieParams();
-        if (! empty($cookies[$oldName])) {
+        if (!empty($cookies[$oldName])) {
             $oldId = $cookies[$oldName];
         }
 
@@ -138,7 +138,7 @@ class Sessions implements SessionsInterface
 
         // invoke the middleware
         if ($middleware instanceof RequestHandlerInterface) {
-			$response = $middleware->handle($request);
+            $response = $middleware->handle($request);
         } elseif (\is_callable($middleware)) {
             $response = $middleware($request, $response);
         }
@@ -226,7 +226,7 @@ class Sessions implements SessionsInterface
         $this->data = $data;
     }
 
-    public function toArray() : array
+    public function toArray(): array
     {
         $array = [];
         if (\is_array($this->data)) {
@@ -238,7 +238,7 @@ class Sessions implements SessionsInterface
         return $array;
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->data = [];
     }
@@ -248,17 +248,17 @@ class Sessions implements SessionsInterface
         return $this->data[$name] ?? $default;
     }
 
-    public function set(string $name, $value) : void
+    public function set(string $name, $value): void
     {
         $this->data[$name] = $value;
     }
 
-    public function has(string $name) : bool
+    public function has(string $name): bool
     {
         return \array_key_exists($name, $this->data);
     }
 
-    public function unset(string $name) : void
+    public function unset(string $name): void
     {
         unset($this->data[$name]);
     }
@@ -363,22 +363,22 @@ class Sessions implements SessionsInterface
         $this->id = static::generateToken();
     }
 
-    public function generateTokenFor(string $keyName = '__csrf') : string
+    public function generateTokenFor(string $keyName = '__csrf'): string
     {
         $this->data[$keyName] = static::generateToken();
         return $this->data[$keyName];
     }
 
-    public function validateTokenFor(string $token, string $csrfKey = '__csrf') : bool
+    public function validateTokenFor(string $token, string $csrfKey = '__csrf'): bool
     {
-        if (! isset($this->data[$csrfKey])) {
+        if (!isset($this->data[$csrfKey])) {
             return false;
         }
 
         return $token === $this->data[$csrfKey];
     }
 
-    public static function generateToken() : string
+    public static function generateToken(): string
     {
         return \bin2hex(\random_bytes(static::SESSION_ID_LENGTH));
     }
@@ -457,10 +457,10 @@ class Sessions implements SessionsInterface
                 return $this->cacheLimiterPrivate($response);
             case 'nocache':
                 return $this->cacheLimiterNocache($response);
-            default:            
-			    // @codeCoverageIgnoreStart
-                return $response;                
-			    // @codeCoverageIgnoreEnd
+            default:
+                // @codeCoverageIgnoreStart
+                return $response;
+                // @codeCoverageIgnoreEnd
         }
     }
 

@@ -164,7 +164,7 @@ class Cookie implements CookieInterface
     public function withHttpOnly($flag)
     {
         $clone = clone $this;
-        $clone->httpOnly = (bool)$flag;
+        $clone->httpOnly = (bool) $flag;
         return $clone;
     }
 
@@ -174,7 +174,7 @@ class Cookie implements CookieInterface
     public function withMaxAge($age)
     {
         $clone = clone $this;
-        $clone->maxAge = (int)$age;
+        $clone->maxAge = (int) $age;
         return $clone;
     }
 
@@ -204,7 +204,7 @@ class Cookie implements CookieInterface
     public function withSecure($flag)
     {
         $clone = clone $this;
-        $clone->secure = (bool)$flag;
+        $clone->secure = (bool) $flag;
         return $clone;
     }
 
@@ -277,7 +277,7 @@ class Cookie implements CookieInterface
     /**
      * Create Cookie using `$name` and `$value` pair.
      */
-    public static function make(string $name, string $value = '') : Cookie
+    public static function make(string $name, string $value = ''): Cookie
     {
         return new self($name, $value);
     }
@@ -330,7 +330,7 @@ class Cookie implements CookieInterface
      * @param string $cookieHeader A string cookie header value.
      * @return array key/value cookie pairs.
      */
-    public static function parseCookieHeader($cookieHeader) : array
+    public static function parseCookieHeader($cookieHeader): array
     {
         if (\is_array($cookieHeader)) {
             $cookieHeader = isset($cookieHeader[0]) ? $cookieHeader[0] : '';
@@ -362,7 +362,7 @@ class Cookie implements CookieInterface
     /**
      * Create a list of Cookies from a Cookie header value string.
      */
-    public static function listFromString(string $string) : array
+    public static function listFromString(string $string): array
     {
         $cookies = self::splitOnDelimiter($string);
 
@@ -374,7 +374,7 @@ class Cookie implements CookieInterface
     /**
      * Create one Cookie from a cookie key/value header value string.
      */
-    public static function oneFromPair(string $string) : Cookie
+    public static function oneFromPair(string $string): Cookie
     {
         list($cookieName, $cookieValue) = self::splitPair($string);
 
@@ -387,7 +387,7 @@ class Cookie implements CookieInterface
         return $cookie;
     }
 
-    public static function splitOnDelimiter(string $string) : array
+    public static function splitOnDelimiter(string $string): array
     {
         $splitAttributes = \preg_split('@\s*[;]\s*@', $string);
 
@@ -396,7 +396,7 @@ class Cookie implements CookieInterface
         return \array_filter($splitAttributes);
     }
 
-    public static function splitPair(string $string) : array
+    public static function splitPair(string $string): array
     {
         $pairParts = \explode('=', $string, 2);
         $pairParts[1] = $pairParts[1] ?? '';

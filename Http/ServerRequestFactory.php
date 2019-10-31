@@ -121,14 +121,14 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
             $host = $server['HTTP_HOST'];
             if (\preg_match('~(?P<host>[^:]+):(?P<port>\d+)$~', $host, $matches)) {
                 $uri = $uri->withHost($matches['host'])
-                    ->withPort((int)$matches['port']);
+                    ->withPort((int) $matches['port']);
             } else {
                 $uri = $uri->withHost($host);
             }
         } elseif (isset($server['SERVER_NAME'])) {
             $uri = $uri->withHost($server['SERVER_NAME']);
             if (\array_key_exists('SERVER_PORT', $server)) {
-                $uri = $uri->withPort((int)$server['SERVER_PORT']);
+                $uri = $uri->withPort((int) $server['SERVER_PORT']);
             }
         }
         $path = null;
