@@ -900,6 +900,9 @@ $response = ResponseCookies::expire($response, 'session_cookie');
 
 Normally, **PHP** will send out headers for you automatically when you call `session_start()`. However, this means the headers are not being sent as part of the PSR-7 response object, and are thus outside your control. `Sessions` puts them back under your control by placing the relevant headers in the PSR-7 response.
 
+This class is a merge and rework of `Session`, and `SessionHeadersHandler` class in repo, [Relay.Middleware](https://github.com/relayphp/Relay.Middleware), and [sessionware
+](https://github.com/juliangut/sessionware/tree/2.x).
+
 This manager provides a nice OOP API to access session related actions:
 
 `$session = new \Async\Http\Sessions($id, $cacheLimiter, $cacheExpire);`
