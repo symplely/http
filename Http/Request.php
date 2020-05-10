@@ -65,7 +65,7 @@ class Request extends MessageAbstract implements RequestInterface, RequestMethod
      */
     public static function assertMethod($value)
     {
-        if (!\in_array($value, array('CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'))) {
+        if (!\in_array($value, array('CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE', 'PURGE'))) {
             throw new \InvalidArgumentException("'{$value}' is not a valid HTTP method");
         }
     }
