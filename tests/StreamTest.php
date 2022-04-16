@@ -146,10 +146,8 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = (float) \phpversion() >= 8.0 ? 'ftell(): supplied resource is not a valid stream resource' : 'Unable to get position of stream.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
-        $this->expectExceptionMessage($message);
 
         $fixture->tell();
 
@@ -387,11 +385,9 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = (float) \phpversion() >= 8.0 ? 'stream_get_meta_data(): supplied resource is not a valid stream resource' : 'Stream is not writable.';
         $this->expectException(\RuntimeException::class);
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
-        $this->expectExceptionMessage($message);
 
         $fixture->write(uniqid());
 
@@ -458,10 +454,8 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = (float) \phpversion() >= 8.0 ? 'stream_get_meta_data(): supplied resource is not a valid stream resource' : 'Stream is not readable.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
-        $this->expectExceptionMessage($message);
 
         $fixture->read(rand());
 

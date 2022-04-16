@@ -63,7 +63,7 @@ class Stream implements StreamInterface
      */
     public function __toString()
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return '';
         }
         $string = \stream_get_contents($this->stream, -1, 0);
@@ -78,9 +78,10 @@ class Stream implements StreamInterface
      */
     public function close(): void
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return;
         }
+
         \fclose($this->stream);
         $this->stream = null;
     }
@@ -100,7 +101,7 @@ class Stream implements StreamInterface
      */
     public function getSize(): ?int
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return null;
         }
 
@@ -113,7 +114,7 @@ class Stream implements StreamInterface
      */
     public function tell(): int
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             throw new \RuntimeException('Stream is not open.');
         }
 
@@ -130,7 +131,7 @@ class Stream implements StreamInterface
      */
     public function eof(): bool
     {
-        return $this->stream === null ? true : feof($this->stream);
+        return $this->invalidResource() ? true : feof($this->stream);
     }
 
     /**
@@ -160,7 +161,7 @@ class Stream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET): void
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             throw new \RuntimeException('Stream is not open.');
         }
 
@@ -190,7 +191,7 @@ class Stream implements StreamInterface
      */
     public function isWritable(): bool
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return false;
         }
 
