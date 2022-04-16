@@ -71,14 +71,11 @@ class StreamTest extends TestCase
         error_reporting(0);
 
         $resource = $this->createResource();
-        $fixture  = new Stream($resource);
 
+        $fixture  = new Stream($resource);
         $fixture->close();
 
-        fwrite($resource, uniqid());
-        rewind($resource);
-
-        self::assertEquals('', stream_get_contents($resource));
+        self::assertFalse(\is_resource($resource));
 
         error_reporting($level);
     }
@@ -150,7 +147,8 @@ class StreamTest extends TestCase
         fclose($resource);
 
         $message = 'Unable to get position of stream.';
-        $this->expectException(\RuntimeException::class);
+        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
+        $this->expectException($errorType);
         $this->expectExceptionMessage($message);
 
         $fixture->tell();
@@ -277,7 +275,8 @@ class StreamTest extends TestCase
         fclose($resource);
 
         $message = 'Failed to rewind stream.';
-        $this->expectException(\RuntimeException::class);
+        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
+        $this->expectException($errorType);
         $this->expectExceptionMessage($message);
 
         $fixture->rewind();
@@ -390,6 +389,8 @@ class StreamTest extends TestCase
 
         $message = 'Stream is not writable.';
         $this->expectException(\RuntimeException::class);
+        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
+        $this->expectException($errorType);
         $this->expectExceptionMessage($message);
 
         $fixture->write(uniqid());
@@ -458,7 +459,8 @@ class StreamTest extends TestCase
         fclose($resource);
 
         $message = 'Stream is not readable.';
-        $this->expectException(\RuntimeException::class);
+        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
+        $this->expectException($errorType);
         $this->expectExceptionMessage($message);
 
         $fixture->read(rand());
@@ -498,7 +500,8 @@ class StreamTest extends TestCase
         fclose($resource);
 
         $message = 'Failed to get contents of stream.';
-        $this->expectException(\RuntimeException::class);
+        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
+        $this->expectException($errorType);
         $this->expectExceptionMessage($message);
 
         $fixture->getContents();

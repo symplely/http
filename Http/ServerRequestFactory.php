@@ -41,12 +41,16 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
         $uri = self::getUri($server);
         $request = new ServerRequest($method, $uri);
         $request = $request->withBody($body)
-            ->withProtocolVersion($protocolVersion)
-            ->withServerParams($server);
+            ->withProtocolVersion($protocolVersion);
+
+        if ($request instanceof ServerRequest)
+            $request = $request->withServerParams($server);
+
         $headers = self::getHeaders($server);
         foreach ($headers as $name => $value) {
             $request = $request->withHeader($name, $value);
         }
+
         return $request;
     }
 

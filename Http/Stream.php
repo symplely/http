@@ -138,7 +138,7 @@ class Stream implements StreamInterface
      */
     public function isSeekable(): bool
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return false;
         }
 
@@ -148,6 +148,11 @@ class Stream implements StreamInterface
         }
 
         return $seekable;
+    }
+
+    protected function invalidResource()
+    {
+        return  $this->stream == null || !\is_resource($this->stream);
     }
 
     /**

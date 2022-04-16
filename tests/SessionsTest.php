@@ -22,9 +22,10 @@ namespace Async\Tests;
 use RuntimeException;
 use Async\Http\Response;
 use Async\Http\Sessions;
-use Async\Http\ServerRequestInterface;
 use Async\Http\ServerRequestFactory;
 use Async\Http\SessionsInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use PHPUnit\Framework\TestCase;
 
 
@@ -80,7 +81,7 @@ class SessionsTest extends TestCase
         if (isset($headers['Set-Cookie'])) {
             $cookie = $headers['Set-Cookie'][0];
         } else {
-            foreach($headers as $value) {
+            foreach ($headers as $value) {
                 $cookie .= $value[0];
             }
         }
