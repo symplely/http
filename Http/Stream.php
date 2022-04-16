@@ -271,7 +271,7 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        if ($this->stream === null) {
+        if ($this->invalidResource()) {
             return null;
         }
 

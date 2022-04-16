@@ -146,7 +146,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = 'Unable to get position of stream.';
+        $message = (float) \phpversion() >= 8.0 ? 'ftell(): supplied resource is not a valid stream resource' : 'Unable to get position of stream.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
         $this->expectExceptionMessage($message);
@@ -274,7 +274,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = 'Failed to rewind stream.';
+        $message = (float) \phpversion() >= 8.0 ? 'rewind(): supplied resource is not a valid stream resource' : 'Failed to rewind stream.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
         $this->expectExceptionMessage($message);
@@ -387,7 +387,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = 'Stream is not writable.';
+        $message = (float) \phpversion() >= 8.0 ? 'stream_get_meta_data(): supplied resource is not a valid stream resource' : 'Stream is not writable.';
         $this->expectException(\RuntimeException::class);
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
@@ -458,7 +458,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = 'Stream is not readable.';
+        $message = (float) \phpversion() >= 8.0 ? 'stream_get_meta_data(): supplied resource is not a valid stream resource' : 'Stream is not readable.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
         $this->expectExceptionMessage($message);
@@ -499,7 +499,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $message = 'Failed to get contents of stream.';
+        $message = (float) \phpversion() >= 8.0 ? 'stream_get_contents(): supplied resource is not a valid stream resource' : 'Failed to get contents of stream.';
         $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
         $this->expectException($errorType);
         $this->expectExceptionMessage($message);
