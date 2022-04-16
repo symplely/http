@@ -1,0 +1,33 @@
+# GitHub Action for PHP with extensions
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: CI
+    runs-on: ${{ matrix.operating-system }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        with:
+            php-version: ${{ matrix.php-versions }}
+            extensions: mbstring, simplexml, curl, dom, sockets, fileinfo, openssl,  sodium, xdebug
+            coverage: xdebug
+      - name: Install dependencies
+        run: composer install
+      - name: Test with phpunit
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Submit code coverage
+        if: ${{ success() }} || ${{ failure() }}
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml # optional
