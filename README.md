@@ -1,6 +1,6 @@
 # HTTP
 
-[![Build Status](https://travis-ci.org/symplely/http.svg?branch=master)](https://travis-ci.org/symplely/http)[![Build status](https://ci.appveyor.com/api/projects/status/o86w2h4990x7ehk7/branch/master?svg=true)](https://ci.appveyor.com/project/techno-express/http/branch/master)[![codecov](https://codecov.io/gh/symplely/http/branch/master/graph/badge.svg)](https://codecov.io/gh/symplely/http)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e18e2135abaf49f2b0fd9bf8d29c519d)](https://www.codacy.com/app/techno-express/http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=symplely/http&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/eb6c23530d8c9f864f16/maintainability)](https://codeclimate.com/github/symplely/http/maintainability)
+[![build](https://github.com/symplely/http/actions/workflows/php.yml/badge.svg)](https://github.com/symplely/http/actions/workflows/php.yml)[![codecov](https://codecov.io/gh/symplely/http/branch/master/graph/badge.svg)](https://codecov.io/gh/symplely/http)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e18e2135abaf49f2b0fd9bf8d29c519d)](https://www.codacy.com/app/techno-express/http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=symplely/http&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/eb6c23530d8c9f864f16/maintainability)](https://codeclimate.com/github/symplely/http/maintainability)
 
 An complete [PSR-7](https://www.php-fig.org/psr/psr-7/) *Request*/*Response* implementation, with *Cookie*, and *Session* management/middleware.
 
@@ -647,7 +647,7 @@ Returns a new instance with the specified fragment.
 
 ## Cookies
 
-Cookies handles two problems, managing `Cookie` Request headers and managing `Set-Cookie` Response headers. It does this by way of introducing a _Cookies_ class to manage collections of **Cookie** instances and a _SetCookies_ class to manage collections of **SetCookie** instances.
+Cookies handles two problems, managing `Cookie` Request headers and managing `Set-Cookie` Response headers. It does this by way of introducing a *Cookies* class to manage collections of **Cookie** instances and a *SetCookies* class to manage collections of **SetCookie** instances.
 
 These classes are a merge and rework of repo [dflydev-fig-cookies
 ](https://github.com/dflydev/dflydev-fig-cookies).
@@ -709,7 +709,7 @@ primitive Cookies classes. Their jobs are to make common cookie related
 tasks easier and less verbose than working with the primitive classes directly.
 
 There is overhead on creating `Cookies` and `SetCookies` and rebuilding
-_requests_ and _responses_. Each of these methods will go through this
+*requests* and *responses*. Each of these methods will go through this
 process so be wary of using too many of these calls in the same section of
 code. In some cases it may be better to work with the primitive classes
 directly rather than using the facades.
@@ -924,7 +924,7 @@ You can also pass a [cache expire](http://php.net/session_cache_expire) value, i
 * `Sessions::close()` close session saving its contents, will also auto update $_SESSION on script shutdown, or __destruct.
 * `Sessions::destroy()` destroy session and all its contents
 
-___Session Middleware___
+_**Session Middleware**_
 
 The same instance also comes with a middleware handler which you can use to automatically initialize session, and write session cookie to response.
 
