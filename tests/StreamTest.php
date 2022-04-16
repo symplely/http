@@ -146,9 +146,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
-        $this->expectException($errorType);
-
+        $this->expectException(\RuntimeException::class);
         $fixture->tell();
 
         error_reporting($level);
@@ -386,9 +384,6 @@ class StreamTest extends TestCase
         fclose($resource);
 
         $this->expectException(\RuntimeException::class);
-        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
-        $this->expectException($errorType);
-
         $fixture->write(uniqid());
 
         error_reporting($level);
@@ -454,8 +449,7 @@ class StreamTest extends TestCase
         $fixture  = new Stream($resource);
         fclose($resource);
 
-        $errorType = (float) \phpversion() >= 8.0 ? \TypeError::class : \RuntimeException::class;
-        $this->expectException($errorType);
+        $this->expectException(\RuntimeException::class);
 
         $fixture->read(rand());
 
