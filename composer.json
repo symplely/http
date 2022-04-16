@@ -1,7 +1,12 @@
 {
   "name": "symplely/http",
   "description": "An simple PSR-7 Request/Response implementation, with Cookie, and Session management/middleware.",
-  "keywords": ["psr-7", "http", "request", "response"],
+  "keywords": [
+    "psr-7",
+    "http",
+    "request",
+    "response"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/symplely/http",
   "type": "library",
@@ -22,18 +27,18 @@
     }
   },
   "provide": {
-    "psr/http-client-implementation" : "^1.0",
+    "psr/http-client-implementation": "^1.0",
     "psr/http-message-implementation": "^1.0"
   },
   "require": {
     "php": "^7.0",
-    "psr/http-client" : "^1.0",
+    "psr/http-client": "^1.0",
     "psr/http-factory": "^1.0",
     "psr/http-message": "^1.0",
-    "psr/http-server-handler":"^1.0",
-    "fig/http-message-util":"^1.1"
+    "psr/http-server-handler": "^1.0",
+    "fig/http-message-util": "^1.1"
   },
   "require-dev": {
-    "phpunit/phpunit": ">5.7"
+    "phpunit/phpunit": "^6 | ^7 | ^8"
   }
 }

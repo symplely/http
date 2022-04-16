@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class StreamTest extends TestCase
 {
     /**
-     * @var StreamInterface
+     * @var StreamInterface|Stream
      */
     protected $factory;
 
@@ -27,7 +27,7 @@ class StreamTest extends TestCase
 
     public function testExceptionThrown(): void
     {
-        $message = Stream::class.' must be constructed with a resource or string; integer given.';
+        $message = Stream::class . ' must be constructed with a resource or string; integer given.';
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
 

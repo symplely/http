@@ -71,73 +71,46 @@ class Cookie implements CookieInterface
         $this->value = $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDomain()
     {
         return $this->domain;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getExpiry()
     {
         return $this->expiry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getMaxAge()
     {
         return $this->maxAge;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getPath()
     {
         return $this->path;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getValue()
     {
         return $this->value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isHttpOnly()
     {
         return $this->httpOnly;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isSecure()
     {
         return $this->secure;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withDomain($domain)
     {
         $clone = clone $this;
@@ -145,9 +118,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withExpiry($expiry)
     {
         if (null !== $expiry) {
@@ -158,9 +128,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withHttpOnly($flag)
     {
         $clone = clone $this;
@@ -168,9 +135,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withMaxAge($age)
     {
         $clone = clone $this;
@@ -178,9 +142,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withName($name)
     {
         $clone = clone $this;
@@ -188,9 +149,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withPath($path)
     {
         $clone = clone $this;
@@ -198,9 +156,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withSecure($flag)
     {
         $clone = clone $this;
@@ -208,9 +163,6 @@ class Cookie implements CookieInterface
         return $clone;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function withValue($value)
     {
         $clone = clone $this;
@@ -252,8 +204,10 @@ class Cookie implements CookieInterface
     {
         if (!($value instanceof \DateTime) && !\is_string($value) && !\is_int($value)) {
             throw new \InvalidArgumentException(
-                "Cookie expiry must be string, int or an instance of \\DateTime; '%s' given",
-                \is_object($value) ? \get_class($value) : \gettype($value)
+                \sprintf(
+                    "Cookie expiry must be string, int or an instance of \\DateTime; '%s' given",
+                    \is_object($value) ? \get_class($value) : \gettype($value)
+                )
             );
         }
     }
@@ -267,7 +221,7 @@ class Cookie implements CookieInterface
         if (\is_string($value)) {
             $value = \DateTime::createFromFormat(Cookie::EXPIRY_FORMAT, $value);
         } elseif (\is_int($value)) {
-            $value = \DateTime::createFromFormat('U', $value);
+            $value = \DateTime::createFromFormat('U', (string) $value);
         }
         if ($value instanceof \DateTime) {
             return $value;

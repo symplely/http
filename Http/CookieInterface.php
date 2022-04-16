@@ -20,6 +20,11 @@ interface CookieInterface
     public function getExpiry();
 
     /**
+     * @return int
+     */
+    public function getMaxAge();
+
+    /**
      * @return string
      */
     public function getName();
